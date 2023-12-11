@@ -1,0 +1,20 @@
+PROTOTIPO:
+En este prototipo tenemos una version funcional pero no terminada. Basicamente hara una primera capa de filtraje en base a la complejidad del libro y la complejidad 
+que el lector puede soportar. Tambien se hara el filtraje por Autores. Es decir el Programa recomienda libros que tengan una complejidad (Alta,Baja o Media) que se inferirá
+de los datos que proporcione el lector. Del mismo modo con el autor.
+
+Para el futuro queremos implementar de manera mas inteligente estos filtros y anadir las que faltan.
+
+USO DEL PROGRAMA :
+1.Ejecutar ``clips`` en terminal.
+2.``(load "main.clp")``
+3.``(reset)``
+4.``(run)``
+
+COSAS A TENER EN CUENTA :
+Las preguntas con varios valores hay que poner los tipo : "valor1" "valor2" ... 
+Las preguntas de autores favoritos y generos favoritos tiene que ser de la siguente manera : "Autor1" "Autor2" o "Genero1" "Genero2"
+Las preguntas de SI y NO hay que responderlas necesariamente con : SI o NO (no "SI" o "NO")
+Para no fallar con el input es muy aconsejable seguir las sugerencias que salen junto a las preguntas.
+
+
