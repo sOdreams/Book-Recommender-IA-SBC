@@ -250,11 +250,6 @@
         (create-accessor read-write))
 )
 
-(defclass Aventura
-    (is-a Genero)
-    (role concrete)
-    (pattern-match reactive)
-)
 
 (defclass Ciencia
     (is-a Genero)
@@ -305,12 +300,6 @@
 )
 
 (defclass Policiaca
-    (is-a Genero)
-    (role concrete)
-    (pattern-match reactive)
-)
-
-(defclass Realismo
     (is-a Genero)
     (role concrete)
     (pattern-match reactive)
