@@ -1,0 +1,695 @@
+@prefix : <http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7/> .
+
+<http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7> rdf:type owl:Ontology .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#autores_de_epoca
+:autores_de_epoca rdf:type owl:ObjectProperty ;
+                  rdfs:subPropertyOf owl:topObjectProperty ;
+                  rdfs:domain :Epoca ;
+                  rdfs:range :Autor .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#autores_de_genero
+:autores_de_genero rdf:type owl:ObjectProperty ;
+                   rdfs:subPropertyOf owl:topObjectProperty ;
+                   rdfs:domain :Genero ;
+                   rdfs:range :Autor .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#autores_preferidos
+:autores_preferidos rdf:type owl:ObjectProperty ;
+                    rdfs:subPropertyOf owl:topObjectProperty ;
+                    rdfs:domain :Lector ;
+                    rdfs:range :Autor .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#epoca_de_autor
+:epoca_de_autor rdf:type owl:ObjectProperty ;
+                rdfs:subPropertyOf owl:topObjectProperty ;
+                rdf:type owl:FunctionalProperty ;
+                rdfs:domain :Autor ;
+                rdfs:range :Epoca .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#epoca_de_libro
+:epoca_de_libro rdf:type owl:ObjectProperty ;
+                rdfs:subPropertyOf owl:topObjectProperty ;
+                rdf:type owl:FunctionalProperty ;
+                rdfs:domain :Libro ;
+                rdfs:range :Epoca .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#epocas_preferidos
+:epocas_preferidos rdf:type owl:ObjectProperty ;
+                   rdfs:subPropertyOf owl:topObjectProperty ;
+                   rdfs:domain :Lector ;
+                   rdfs:range :Epoca .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#escribe_en_idiomas
+:escribe_en_idiomas rdf:type owl:ObjectProperty ;
+                    rdfs:subPropertyOf owl:topObjectProperty ;
+                    rdfs:domain :Autor ;
+                    rdfs:range :Idioma .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#escribe_generos
+:escribe_generos rdf:type owl:ObjectProperty ;
+                 rdfs:subPropertyOf owl:topObjectProperty ;
+                 rdfs:domain :Autor ;
+                 rdfs:range :Genero .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#escrito_por
+:escrito_por rdf:type owl:ObjectProperty ;
+             rdfs:subPropertyOf owl:topObjectProperty ;
+             rdf:type owl:FunctionalProperty ;
+             rdfs:domain :Libro ;
+             rdfs:range :Autor .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#genero_de_libro
+:genero_de_libro rdf:type owl:ObjectProperty ;
+                 rdfs:subPropertyOf owl:topObjectProperty ;
+                 rdf:type owl:FunctionalProperty ;
+                 rdfs:domain :Libro ;
+                 rdfs:range :Genero .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#generos_preferidos
+:generos_preferidos rdf:type owl:ObjectProperty ;
+                    rdfs:subPropertyOf owl:topObjectProperty ;
+                    rdfs:domain :Lector ;
+                    rdfs:range :Genero .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#idioma_de_libro
+:idioma_de_libro rdf:type owl:ObjectProperty ;
+                 rdfs:subPropertyOf owl:topObjectProperty ;
+                 rdf:type owl:FunctionalProperty ;
+                 rdfs:domain :Libro ;
+                 rdfs:range :Idioma .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#lee_en_idiomas
+:lee_en_idiomas rdf:type owl:ObjectProperty ;
+                rdfs:subPropertyOf owl:topObjectProperty ;
+                rdfs:domain :Lector ;
+                rdfs:range :Idioma .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#libros_de_epoca
+:libros_de_epoca rdf:type owl:ObjectProperty ;
+                 rdfs:subPropertyOf owl:topObjectProperty ;
+                 rdfs:domain :Epoca ;
+                 rdfs:range :Libro .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#libros_de_genero
+:libros_de_genero rdf:type owl:ObjectProperty ;
+                  rdfs:subPropertyOf owl:topObjectProperty ;
+                  rdfs:domain :Genero ;
+                  rdfs:range :Libro .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#libros_de_tema
+:libros_de_tema rdf:type owl:ObjectProperty ;
+                rdfs:subPropertyOf owl:topObjectProperty ;
+                rdfs:domain :Tema ;
+                rdfs:range :Libro .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#libros_escritos
+:libros_escritos rdf:type owl:ObjectProperty ;
+                 rdfs:subPropertyOf owl:topObjectProperty ;
+                 rdfs:domain :Autor ;
+                 rdfs:range :Libro .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#libros_leidos
+:libros_leidos rdf:type owl:ObjectProperty ;
+               rdfs:subPropertyOf owl:topObjectProperty ;
+               rdfs:domain :Lector ;
+               rdfs:range :Libro .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#recomienda
+:recomienda rdf:type owl:ObjectProperty ;
+            rdfs:subPropertyOf owl:topObjectProperty ;
+            rdfs:domain :Recomendacion ;
+            rdfs:range :Libro .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#tema_de_libro
+:tema_de_libro rdf:type owl:ObjectProperty ;
+               rdfs:subPropertyOf owl:topObjectProperty ;
+               rdf:type owl:FunctionalProperty ;
+               rdfs:domain :Libro ;
+               rdfs:range :Tema .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#temas_preferidos
+:temas_preferidos rdf:type owl:ObjectProperty ;
+                  rdfs:subPropertyOf owl:topObjectProperty ;
+                  rdfs:domain :Lector ;
+                  rdfs:range :Tema .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#actividad_de_lectura_social
+:actividad_de_lectura_social rdf:type owl:DatatypeProperty ;
+                             rdfs:subPropertyOf owl:topDataProperty ;
+                             rdf:type owl:FunctionalProperty ;
+                             rdfs:domain :Lector ;
+                             rdfs:range xsd:boolean .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#año_final_epoca
+:año_final_epoca rdf:type owl:DatatypeProperty ;
+                 rdfs:subPropertyOf owl:topDataProperty ;
+                 rdf:type owl:FunctionalProperty ;
+                 rdfs:domain :Epoca ;
+                 rdfs:range xsd:integer .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#año_inicio_epoca
+:año_inicio_epoca rdf:type owl:DatatypeProperty ;
+                  rdfs:subPropertyOf owl:topDataProperty ;
+                  rdf:type owl:FunctionalProperty ;
+                  rdfs:domain :Epoca ;
+                  rdfs:range xsd:integer .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#año_publicacion
+:año_publicacion rdf:type owl:DatatypeProperty ;
+                 rdfs:subPropertyOf owl:topDataProperty ;
+                 rdf:type owl:FunctionalProperty ;
+                 rdfs:domain :Libro ;
+                 rdfs:range xsd:integer .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#caracteristicas_genero
+:caracteristicas_genero rdf:type owl:DatatypeProperty ;
+                        rdfs:subPropertyOf owl:topDataProperty ;
+                        rdfs:domain :Genero ;
+                        rdfs:range xsd:string .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#complejidad
+:complejidad rdf:type owl:DatatypeProperty ;
+             rdfs:subPropertyOf owl:topDataProperty ;
+             rdf:type owl:FunctionalProperty ;
+             rdfs:domain :Libro ;
+             rdfs:range xsd:string .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#de_moda
+:de_moda rdf:type owl:DatatypeProperty ;
+         rdfs:subPropertyOf owl:topDataProperty ;
+         rdfs:domain :Libro ;
+         rdfs:range xsd:boolean .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#descripcion_epoca
+:descripcion_epoca rdf:type owl:DatatypeProperty ;
+                   rdfs:subPropertyOf owl:topDataProperty ;
+                   rdfs:domain :Epoca ;
+                   rdfs:range xsd:string .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#descripcion_tema
+:descripcion_tema rdf:type owl:DatatypeProperty ;
+                  rdfs:subPropertyOf owl:topDataProperty ;
+                  rdf:type owl:FunctionalProperty ;
+                  rdfs:domain :Tema ;
+                  rdfs:range xsd:string .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#disponibilidad
+:disponibilidad rdf:type owl:DatatypeProperty ;
+                rdfs:subPropertyOf owl:topDataProperty ;
+                rdf:type owl:FunctionalProperty ;
+                rdfs:domain :Libro ;
+                rdfs:range xsd:string .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#edad
+:edad rdf:type owl:DatatypeProperty ;
+      rdfs:subPropertyOf owl:topDataProperty ;
+      rdf:type owl:FunctionalProperty ;
+      rdfs:domain :Persona ;
+      rdfs:range xsd:integer .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#expectativas
+:expectativas rdf:type owl:DatatypeProperty ;
+              rdfs:subPropertyOf owl:topDataProperty ;
+              rdfs:domain :Lector ;
+              rdfs:range xsd:string .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#hablantes
+:hablantes rdf:type owl:DatatypeProperty ;
+           rdfs:subPropertyOf owl:topDataProperty ;
+           rdf:type owl:FunctionalProperty ;
+           rdfs:domain :Idioma ;
+           rdfs:range xsd:integer .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#interes_complejo
+:interes_complejo rdf:type owl:DatatypeProperty ;
+                  rdfs:subPropertyOf owl:topDataProperty ;
+                  rdf:type owl:FunctionalProperty ;
+                  rdfs:domain :Lector ;
+                  rdfs:range xsd:boolean .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#interes_extenso
+:interes_extenso rdf:type owl:DatatypeProperty ;
+                 rdfs:subPropertyOf owl:topDataProperty ;
+                 rdf:type owl:FunctionalProperty ;
+                 rdfs:domain :Lector ;
+                 rdfs:range xsd:boolean .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#interes_moda
+:interes_moda rdf:type owl:DatatypeProperty ;
+              rdfs:subPropertyOf owl:topDataProperty ;
+              rdf:type owl:FunctionalProperty ;
+              rdfs:domain :Lector ;
+              rdfs:range xsd:boolean .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#lugar_de_lectura
+:lugar_de_lectura rdf:type owl:DatatypeProperty ;
+                  rdfs:subPropertyOf owl:topDataProperty ;
+                  rdfs:domain :Lector ;
+                  rdfs:range xsd:string .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#nombre
+:nombre rdf:type owl:DatatypeProperty ;
+        rdfs:subPropertyOf owl:topDataProperty ;
+        rdf:type owl:FunctionalProperty ;
+        rdfs:domain :Epoca ,
+                    :Genero ,
+                    :Idioma ,
+                    :Persona ,
+                    :Tema ;
+        rdfs:range xsd:string .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#numero_de_libros_leidos
+:numero_de_libros_leidos rdf:type owl:DatatypeProperty ;
+                         rdfs:subPropertyOf owl:topDataProperty ;
+                         rdf:type owl:FunctionalProperty ;
+                         rdfs:domain :Lector ;
+                         rdfs:range xsd:integer .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#numero_paginas
+:numero_paginas rdf:type owl:DatatypeProperty ;
+                rdfs:subPropertyOf owl:topDataProperty ;
+                rdf:type owl:FunctionalProperty ;
+                rdfs:domain :Libro ;
+                rdfs:range xsd:integer .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#popularidad
+:popularidad rdf:type owl:DatatypeProperty ;
+             rdfs:subPropertyOf owl:topDataProperty ;
+             rdf:type owl:FunctionalProperty ;
+             rdfs:domain :Libro ;
+             rdfs:range xsd:boolean .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#preferencia_papel
+:preferencia_papel rdf:type owl:DatatypeProperty ;
+                   rdfs:subPropertyOf owl:topDataProperty ;
+                   rdf:type owl:FunctionalProperty ;
+                   rdfs:domain :Lector ;
+                   rdfs:range xsd:boolean .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#tiempo_semanal_lectura
+:tiempo_semanal_lectura rdf:type owl:DatatypeProperty ;
+                        rdfs:subPropertyOf owl:topDataProperty ;
+                        rdf:type owl:FunctionalProperty ;
+                        rdfs:domain :Lector ;
+                        rdfs:range xsd:integer .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#titulo
+:titulo rdf:type owl:DatatypeProperty ;
+        rdfs:subPropertyOf owl:topDataProperty ;
+        rdf:type owl:FunctionalProperty ;
+        rdfs:domain :Libro ;
+        rdfs:range xsd:string .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#valoracion_media
+:valoracion_media rdf:type owl:DatatypeProperty ;
+                  rdfs:subPropertyOf owl:topDataProperty ;
+                  rdf:type owl:FunctionalProperty ;
+                  rdfs:domain :Libro ;
+                  rdfs:range xsd:integer .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#ventas
+:ventas rdf:type owl:DatatypeProperty ;
+        rdfs:subPropertyOf owl:topDataProperty ;
+        rdf:type owl:FunctionalProperty ;
+        rdfs:domain :Libro ;
+        rdfs:range xsd:integer .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Amor
+:Amor rdf:type owl:Class ;
+      rdfs:subClassOf :Tema .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Autor
+:Autor rdf:type owl:Class ;
+       rdfs:subClassOf :Persona ;
+       owl:disjointWith :Lector .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Aventura
+:Aventura rdf:type owl:Class ;
+          rdfs:subClassOf :Genero ,
+                          :Tema .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Barroco
+:Barroco rdf:type owl:Class ;
+         rdfs:subClassOf :Epoca .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Ciencia
+:Ciencia rdf:type owl:Class ;
+         rdfs:subClassOf :Genero .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Clasica
+:Clasica rdf:type owl:Class ;
+         rdfs:subClassOf :Epoca ,
+                         :Genero .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Distopia
+:Distopia rdf:type owl:Class ;
+          rdfs:subClassOf :Genero .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Drama
+:Drama rdf:type owl:Class ;
+       rdfs:subClassOf :Genero .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Epoca
+:Epoca rdf:type owl:Class .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Etica
+:Etica rdf:type owl:Class ;
+       rdfs:subClassOf :Tema .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Fantasia
+:Fantasia rdf:type owl:Class ;
+          rdfs:subClassOf :Genero .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Ficcion
+:Ficcion rdf:type owl:Class ;
+         rdfs:subClassOf :Genero .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Genero
+:Genero rdf:type owl:Class .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Historia
+:Historia rdf:type owl:Class ;
+          rdfs:subClassOf :Genero .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Identidad
+:Identidad rdf:type owl:Class ;
+           rdfs:subClassOf :Tema .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Idioma
+:Idioma rdf:type owl:Class .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Ilustracion
+:Ilustracion rdf:type owl:Class ;
+             rdfs:subClassOf :Epoca .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Lector
+:Lector rdf:type owl:Class ;
+        rdfs:subClassOf :Persona .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Libro
+:Libro rdf:type owl:Class .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Medieval
+:Medieval rdf:type owl:Class ;
+          rdfs:subClassOf :Epoca .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Modernismo
+:Modernismo rdf:type owl:Class ;
+            rdfs:subClassOf :Epoca .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Oeste
+:Oeste rdf:type owl:Class ;
+       rdfs:subClassOf :Genero .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Persona
+:Persona rdf:type owl:Class .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Poder
+:Poder rdf:type owl:Class ;
+       rdfs:subClassOf :Tema .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Policiaca
+:Policiaca rdf:type owl:Class ;
+           rdfs:subClassOf :Genero .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Posmodernismo
+:Posmodernismo rdf:type owl:Class ;
+               rdfs:subClassOf :Epoca .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Realismo
+:Realismo rdf:type owl:Class ;
+          rdfs:subClassOf :Epoca ,
+                          :Genero .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Recomendacion
+:Recomendacion rdf:type owl:Class .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Renacimiento
+:Renacimiento rdf:type owl:Class ;
+              rdfs:subClassOf :Epoca .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Romanticismo
+:Romanticismo rdf:type owl:Class ;
+              rdfs:subClassOf :Epoca .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Romantico
+:Romantico rdf:type owl:Class ;
+           rdfs:subClassOf :Genero .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Simbolismo
+:Simbolismo rdf:type owl:Class ;
+            rdfs:subClassOf :Epoca .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Tecnologia
+:Tecnologia rdf:type owl:Class ;
+            rdfs:subClassOf :Tema .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Tema
+:Tema rdf:type owl:Class .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Terror
+:Terror rdf:type owl:Class ;
+        rdfs:subClassOf :Genero .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Tiempo
+:Tiempo rdf:type owl:Class ;
+        rdfs:subClassOf :Tema .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Vanguardismo
+:Vanguardismo rdf:type owl:Class ;
+              rdfs:subClassOf :Epoca .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#Jonh_Doe
+:Jonh_Doe rdf:type owl:NamedIndividual ,
+                   :Autor ;
+          :epoca_de_autor :epoca1 ;
+          :escribe_en_idiomas :idioma1 ;
+          :escribe_generos :genero1 ;
+          :libros_escritos :libro1 ;
+          :edad 45 ;
+          :nombre "Jonh Doe" .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#epoca1
+:epoca1 rdf:type owl:NamedIndividual ,
+                 :Renacimiento ;
+        :autores_de_epoca :Jonh_Doe ;
+        :libros_de_epoca :libro1 ;
+        :año_final_epoca 1600 ;
+        :año_inicio_epoca 1300 ;
+        :descripcion_epoca "Período cultural y artístico que siguió a la Edad Media." ;
+        :nombre "Renacimiento" .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#genero1
+:genero1 rdf:type owl:NamedIndividual ,
+                  :Ciencia ;
+         :autores_de_genero :Jonh_Doe ;
+         :libros_de_genero :libro1 ;
+         :caracteristicas_genero "Género que explora conceptos futuristas y tecnológicos." ;
+         :nombre "Ciencia" .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#idioma1
+:idioma1 rdf:type owl:NamedIndividual ,
+                  :Idioma ;
+         :hablantes 380000000 ;
+         :nombre "Ingles" .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#libro1
+:libro1 rdf:type owl:NamedIndividual ,
+                 :Libro ;
+        :epoca_de_libro :epoca1 ;
+        :escrito_por :Jonh_Doe ;
+        :genero_de_libro :genero1 ;
+        :idioma_de_libro :idioma1 ;
+        :tema_de_libro :tema1 ;
+        :año_publicacion 2005 ;
+        :complejidad "Media" ;
+        :de_moda "true"^^xsd:boolean ;
+        :disponibilidad "ambos" ;
+        :popularidad "true"^^xsd:boolean ;
+        :titulo "Viaje a las Estrellas" ;
+        :valoracion_media 4.0 ;
+        :ventas 100000 .
+
+
+###  http://www.semanticweb.org/momin/ontologies/2023/11/untitled-ontology-7#tema1
+:tema1 rdf:type owl:NamedIndividual ,
+                :Aventura ;
+       :libros_de_tema :libro1 ;
+       :descripcion_tema "Exploración y aventuras en el espacio." ;
+       :nombre "Aventura" .
+
+
+#################################################################
+#    General axioms
+#################################################################
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :Amor
+                :Aventura
+                :Etica
+                :Identidad
+                :Poder
+                :Tecnologia
+                :Tiempo
+              )
+] .
+
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :Aventura
+                :Ciencia
+                :Clasica
+                :Distopia
+                :Drama
+                :Fantasia
+                :Ficcion
+                :Historia
+                :Oeste
+                :Policiaca
+                :Realismo
+                :Romantico
+                :Terror
+              )
+] .
+
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :Barroco
+                :Clasica
+                :Ilustracion
+                :Medieval
+                :Modernismo
+                :Posmodernismo
+                :Realismo
+                :Renacimiento
+                :Romanticismo
+                :Simbolismo
+                :Vanguardismo
+              )
+] .
+
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :Epoca
+                :Genero
+                :Idioma
+                :Libro
+                :Persona
+                :Recomendacion
+                :Tema
+              )
+] .
+
+
+###  Generated by the OWL API (version 4.5.26.2023-07-17T20:34:13Z) https://github.com/owlcs/owlapi
