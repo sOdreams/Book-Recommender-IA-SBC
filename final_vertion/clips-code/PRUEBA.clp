@@ -371,15 +371,26 @@
         (create-accessor read-write))
 )
 
+(defclass RecomendacionDetalle
+    (is-a USER)
+    (role concrete)
+    (pattern-match reactive)
+    (slot libro
+        (type INSTANCE)
+        (create-accessor read-write))
+    (slot razon
+        (type STRING)
+        (create-accessor read-write))
+)
+
 (defclass Recomendacion
     (is-a USER)
     (role concrete)
     (pattern-match reactive)
-    (multislot recomienda
+    (multislot detalles
         (type INSTANCE)
         (create-accessor read-write))
 )
-
 (definstances instances
     ([Jonh_Doe] of Autor
          (epoca_de_autor  [epoca1])
@@ -546,6 +557,32 @@
   )  
 )
 
+(deftemplate MAIN::SolucionAbstracta
+  (slot Dificultad
+    (type SYMBOL)
+    (allowed-symbols Facil Moderado Dificil)
+  )
+  (multislot Genero
+    (type INSTANCE)
+  )
+  (multislot Temas
+    (type INSTANCE)
+  )
+  (multislot Autores
+    (type INSTANCE)
+  )
+  (slot EstatusLibro
+    (type SYMBOL)
+    (allowed-symbols Bueno Malo Normal)
+  )
+  (slot NivelLector
+    (type SYMBOL)
+    (allowed-symbols Principiante Intermedio Avanzado)
+  )
+  ; Puedes agregar más atributos según sea necesario
+)
+
+
 
 (deftemplate MAIN::datos-libros
    (multislot lista-libros)
@@ -617,57 +654,6 @@
 )
 
 
-; (defclass Lector
-;     (is-a Persona)
-;     (role concrete)
-;     (pattern-match reactive)
-;     (multislot autores_preferidos
-;         (type INSTANCE)
-;         (create-accessor read-write))
-;     (multislot epocas_preferidos
-;         (type INSTANCE)
-;         (create-accessor read-write))
-;     (multislot generos_preferidos
-;         (type INSTANCE)
-;         (create-accessor read-write))
-;     (multislot lee_en_idiomas
-;         (type INSTANCE)
-;         (create-accessor read-write))
-;     (multislot libros_preferidos
-;         (type INSTANCE)
-;         (create-accessor read-write))
-;     (multislot temas_preferidos
-;         (type INSTANCE)
-;         (create-accessor read-write))
-;     (slot actividad_de_lectura_social
-;         (type SYMBOL)
-;         (create-accessor read-write))
-;     (multislot expectativas
-;         (type STRING)
-;         (create-accessor read-write))
-;     (slot interes_complejo
-;         (type SYMBOL)
-;         (create-accessor read-write))
-;     (slot interes_extenso
-;         (type SYMBOL)
-;         (create-accessor read-write))
-;     (slot interes_moda
-;         (type SYMBOL)
-;         (create-accessor read-write))
-;     (multislot lugar_de_lectura
-;         (type STRING)
-;         (create-accessor read-write))
-;     (slot numero_de_libros_preferidos
-;         (type INTEGER)
-;         (create-accessor read-write))
-;     (slot preferencia_papel
-;         (type SYMBOL)
-;         (create-accessor read-write))
-;     (slot tiempo_semanal_lectura
-;         (type INTEGER)
-;         (create-accessor read-write))
-; )
-
 ; (defrule imprimir-nombre
 ; 2 ?est<-(object (is-a Estudiante) (edad 25))
 ; 3 =>
@@ -738,13 +724,6 @@
         (printout t "holaestoyaqui1"?temas-con-nombre crlf)
         (bind ?temas-matching-preferidos (insert$ ?temas-matching-preferidos 1 ?temas-con-nombre))
     )
-    ; ;(printout t ?temas-matching-preferidos)
-    ; (bind ?saludo hola)
-
-    ; (bind ?saludo_con_comillas (format nil "\"%s\"" ?saludo))
-
-    ; ; Print the values
-    ; (printout t "saludo: " ?saludo_con_comillas crlf)
 )
 
 
@@ -861,6 +840,77 @@
 )
 
 
+(defrule DerivarDificultad
+  ?problema <- (ProblemaAbstracto
+                 (NivelPersonal ?nivelPersonal)
+                 (NivelLiterario ?nivelLiterario))
+  =>
+  ; Determinar Dificultad en función de Nivel Personal y Nivel Literario
+  (bind ?dificultad Moderado) ; Valor por defecto
+  (if (or (eq ?nivelPersonal Bajo) (eq ?nivelLiterario Bajo))
+    then
+    (bind ?dificultad Facil)
+    else
+    (if (or (eq ?nivelPersonal Alto) (eq ?nivelLiterario Alto))
+      then
+      (bind ?dificultad Dificil)
+  ))
+
+  ; Crear instancia de SolucionAbstracta con la Dificultad derivada
+  (assert
+    (SolucionAbstracta
+      (Dificultad ?dificultad)
+    )
+  )
+)
+
+(defrule CopiarGenerosYTemas
+  ?problema <- (ProblemaAbstracto
+                 (GenerosInteres $?generosInteres)
+                 (TemasInteres $?temasInteres)
+                 (AutoresInteres $?autoresInteres))
+  ?solucion <- (SolucionAbstracta)
+  =>
+  ; Copiar GenerosInteres y TemasInteres del ProblemaAbstracto a la SolucionAbstracta
+  (modify ?solucion
+    (Genero $?generosInteres)
+    (Temas $?temasInteres)
+    (Autores $?autoresInteres)
+  )
+)
+
+(defrule CopiarEstatusLibro
+  ?problema <- (ProblemaAbstracto
+                 (EstatusLibro ?estatusLibro))
+  ?solucion <- (SolucionAbstracta)
+  =>
+  ; Copiar el valor de EstatusLibro del ProblemaAbstracto a la SolucionAbstracta
+  (modify ?solucion
+    (EstatusLibro ?estatusLibro)
+  )
+)
+
+(defrule DerivarNivelLector
+  ?problema <- (ProblemaAbstracto
+                 (NivelPersonal ?nivelPersonal))
+  ?solucion <- (SolucionAbstracta)
+  =>
+  (if (eq ?nivelPersonal Bajo)
+    then
+    (modify ?solucion (NivelLector Principiante))
+  else
+    (if (eq ?nivelPersonal Medio)
+      then
+      (modify ?solucion (NivelLector Intermedio))
+    else
+      (if (eq ?nivelPersonal Alto)
+        then
+        (modify ?solucion (NivelLector Avanzado))
+      )
+    )
+  )
+
+)
 
 
 
