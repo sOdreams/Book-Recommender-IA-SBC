@@ -1,4 +1,6 @@
 (clear)
-(load "PRUEBA.clp")
+(load "clases.clp")
+(load "instancias.clp")
+(load "main.clp")
 (reset)
 (run)
