@@ -155,6 +155,12 @@
     (slot interes_moda
         (type SYMBOL)
         (create-accessor read-write))
+    (slot interes_popularidad
+        (type SYMBOL)
+        (create-accessor read-write))
+    (slot interes_valoracion
+        (type SYMBOL)
+        (create-accessor read-write))       
     (multislot lugar_de_lectura
         (type STRING)
         (create-accessor read-write))
@@ -413,9 +419,9 @@
          (tema_de_libro  [tema1])
          (año_publicacion  2005)
          (complejidad  "Media")
-         (de_moda  "true")
+         (de_moda  TRUE)
          (disponibilidad  "ambos")
-         (popularidad  "true")
+            (popularidad  TRUE)
          (titulo  "Viaje a las Estrellas")
          (valoracion_media  4.0)
          (ventas  100000)
@@ -513,21 +519,33 @@
     ?respuestas
 )
 
-
-
 (deffunction pregunta_personaliza (?pregunta)
     (printout t "Hola estoy aqui" crlf) 
 )
 
-(deftemplate MAIN::abstracto_lector
-   (multislot Preferencia-Genero (type STRING) (default "DESCONOCIDO"))
-   (multislot Preferencia-Autor (type STRING) (default "DESCONOCIDO"))
-   (slot Nivel-Complejidad (type STRING) (default "DESCONOCIDO"))
-   (multislot contexto (type STRING) (default "DESCONOCIDO"))
-   (slot Disponibilidad (type STRING) (default "DESCONOCIDO"))
-   (slot Nivel-de-Experiencia (type STRING) (default "DESCONOCIDO"))
-   (multislot Factores-de-Influencia (type STRING) (default "DESCONOCIDO"))
+(deftemplate MAIN::ProblemaAbstracto
+  (slot NivelPersonal
+    (type SYMBOL)
+    (allowed-symbols Bajo Medio Alto)
+  )
+  (slot NivelLiterario
+    (type SYMBOL)
+    (allowed-symbols Bajo Medio Alto)
+  )
+  (slot EstatusLibro
+    (type SYMBOL)
+    (allowed-symbols Bueno Malo Normal))
+  (multislot GenerosInteres
+    (type INSTANCE)
+  )
+  (multislot AutoresInteres
+    (type INSTANCE)
+  )
+  (multislot TemasInteres
+    (type INSTANCE)
+  )  
 )
+
 
 (deftemplate MAIN::datos-libros
    (multislot lista-libros)
@@ -730,6 +748,117 @@
 )
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; MODULO ASIGNACION PROBLEMA ABSTRACTO
+
+(defrule CalcularNivelPersonal
+  ?lector <- (object (is-a Lector))
+               (idiomas_habla $?idiomas)
+               (tiempo_semanal_lectura ?tiempo)
+               (edad ?edad)
+  =>
+  (bind ?numIdiomas (length$ ?idiomas))
+  (bind ?nivel Bajo)
+  
+  ; Combinaciones para "Alto" Nivel
+  (if (>= ?numIdiomas 3)
+    then
+    (bind ?nivel Alto)
+  else
+    ; Combinaciones para "Medio" Nivel
+    (if (and (<= ?tiempo 15) (= ?numIdiomas 1) (>= ?edad 60))
+      then
+      (bind ?nivel Medio)
+      else (if (and (<= ?tiempo 10) (>= ?numIdiomas 2) (> ?edad 40))
+             then
+             (bind ?nivel Medio)
+      )
+    )
+  )
+  
+  (assert
+    (ProblemaAbstracto
+      (NivelPersonal ?nivel)
+    )
+  )
+)
+
+
+(defrule CalcularNivelLiterario
+   ?lector <- (object (is-a Lector))
+               (numero_de_libros_leidos ?numLibrosLeidos)
+               (complejidad ?complejidad)
+               (extension ?extension)
+               (actividad_de_lectura_social ?actividadSocial&:(or (eq ?actividadSocial true) (eq ?actividadSocial false)))
+  =>
+  (bind ?nivel Bajo)
+  
+  ; Combinaciones para "Alto" Nivel
+  (if (and (>= ?numLibrosLeidos 20) (eq ?complejidad TRUE) (eq ?extension true))
+    then
+    (bind ?nivel Alto)
+  else
+    ; Combinaciones para "Medio" Nivel
+    (if (and (>= ?numLibrosLeidos 10) (eq ?actividadSocial true))
+      then
+      (bind ?nivel Medio)
+    else
+      ; Nivel "Bajo" por defecto
+      (bind ?nivel Bajo)
+    )
+  )
+  
+  (assert
+    (ProblemaAbstracto
+      (NivelLiterario ?nivel)
+    )
+  )
+)
+
+
+(defrule CopiarDatosALProblemaAbstracto
+  ?lector <- (object (is-a Lector))
+               (autores_preferidos $?autores)
+               (generos_preferidos $?generos)
+               (temas_preferidos $?temas)
+  =>
+  ;retorna un subconjcto de 3 o menos instancias de la lista de los generos autores y temas del lector concreto
+  (bind ?autoresSeleccionados (subseq$ ?autores 0 3))
+  (bind ?generosSeleccionados (subseq$ ?generos 0 3))
+  (bind ?temasSeleccionados (subseq$ ?temas 0 3))
+
+  (assert
+    (ProblemaAbstracto
+      (AutoresInteres $?autoresSeleccionados)
+      (GenerosInteres $?generosSeleccionados)
+      (TemasInteres $?temasSeleccionados)
+    )
+  )
+)
+
+
+(defrule EstablecerEstatusLibro
+  ?lector <- (object (is-a Lector))
+               (interes_valoracion ?valoracion)
+               (interes_popularidad ?popularidad)
+               (interes_moda ?moda)
+  =>
+  (bind ?estatus Normal) 
+
+  (if (and (eq ?valoracion true) (eq ?popularidad true) (eq ?moda true))
+    then
+    (bind ?estatus Bueno)
+  else
+    (if (or (eq ?valoracion false) (eq ?popularidad false) (eq ?moda false))
+      then
+      (bind ?estatus Malo)
+  ))
+
+    (assert
+    (ProblemaAbstracto
+      (EstatusLibro ?estatus)
+    )
+  )
+)
 
 
 
