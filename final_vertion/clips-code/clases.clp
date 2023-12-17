@@ -8,10 +8,10 @@
     (multislot libros_de_epoca
         (type INSTANCE)
         (create-accessor read-write))
-    (slot año_final_epoca
+    (slot ano_final_epoca
         (type INTEGER)
         (create-accessor read-write))
-    (slot año_inicio_epoca
+    (slot ano_inicio_epoca
         (type INTEGER)
         (create-accessor read-write))
     (multislot descripcion_epoca
@@ -140,7 +140,7 @@
     (multislot temas_preferidos
         (type INSTANCE)
         (create-accessor read-write))
-    (slot actividad_de_lectura_social
+    (slot actividad_de_lectura_social 
         (type SYMBOL)
         (create-accessor read-write))
     (multislot expectativas
@@ -342,7 +342,7 @@
     (slot tema_de_libro
         (type INSTANCE)
         (create-accessor read-write))
-    (slot año_publicacion
+    (slot ano_publicacion
         (type INTEGER)
         (create-accessor read-write))
     (slot complejidad
@@ -372,6 +372,10 @@
     (slot NivelLector
         (type SYMBOL)
         (allowed-symbols Principiante Intermedio Avanzado)
+    )
+    (slot objetivo
+        (type STRING)
+        (create-accessor read-write)
     )
 )
 

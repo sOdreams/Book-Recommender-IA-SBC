@@ -1,5 +1,6 @@
 (defmodule MAIN (export ?ALL))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; FUNCIONES PREGUNTAS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (deffunction pregunta-numerica (?pregunta ?rangini ?rangfi)
     (format t "%s [%d, %d] " ?pregunta ?rangini ?rangfi)
     (printout t crlf) 
@@ -131,6 +132,181 @@
     ?respuesta
 )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;FUNCIONES IMPRRESION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(deffunction imprimir-recomendaciones ()
+  (printout t "Lista de recomendaciones:" crlf)
+  (do-for-all-instances ((?recomendacion RecomendacionDetalle))
+    (printout t "ID: " (instance-name ?recomendacion) crlf)
+    (printout t "   Libro: " (send ?recomendacion get-libro) crlf)
+    (printout t "   Puntuacion: " (send ?recomendacion get-puntaje) crlf)
+    (printout t "   Razon: " (send ?recomendacion get-razon) crlf)
+    (printout t crlf)
+  )
+  (printout t "Fin de la lista de recomendaciones." crlf)
+)
+
+(deffunction imprimir-lector ()
+  (printout t "Datos del lector:" crlf)
+  (do-for-all-instances ((?lector Lector))
+    (printout t "Nombre: " (send ?lector get-nombre) crlf)
+    (printout t "Numero de libros leidos: " (send ?lector get-numero_de_libros_leidos) crlf)
+    (printout t "Libros preferidos: " (send ?lector get-libros_preferidos) crlf)
+    (printout t "Temas preferidos: " (send ?lector get-temas_preferidos) crlf)
+    (printout t "Autores preferidos: " (send ?lector get-autores_preferidos) crlf)
+    (printout t "Generos preferidos: " (send ?lector get-generos_preferidos) crlf)
+    (printout t "Epocas preferidas: " (send ?lector get-epocas_preferidas) crlf)
+    (printout t "Interes complejo: " (send ?lector get-interes_complejo) crlf)
+    (printout t "Interes extenso: " (send ?lector get-interes_extenso) crlf)
+    (printout t "Preferencia papel: " (send ?lector get-preferencia_papel) crlf)
+    (printout t "Lee en idiomas: " (send ?lector get-lee_en_idiomas) crlf)
+    (printout t "Interes moda: " (send ?lector get-interes_moda) crlf)
+    (printout t "Interes popularidad: " (send ?lector get-interes_popularidad) crlf)
+    (printout t "Interes valoracion: " (send ?lector get-interes_valoracion) crlf)
+    (printout t "Tiempo semanal lectura: " (send ?lector get-tiempo_semanal_lectura) crlf)
+    (printout t "Lugar de lectura: " (send ?lector get-lugar_de_lectura) crlf)
+    (printout t crlf)
+  )
+)
+
+(deffunction imprimir-autores ()
+  (printout t "Lista de autores:" crlf)
+  (do-for-all-instances ((?autor Autor))
+    (printout t "ID: " (instance-name ?autor) crlf)
+    (printout t "Nombre: " (send ?autor get-nombre) crlf)
+    (printout t "Nacionalidad: " (send ?autor get-nacionalidad) crlf)
+    (printout t "Fecha de nacimiento: " (send ?autor get-fecha_nacimiento) crlf)
+    (printout t "Fecha de muerte: " (send ?autor get-fecha_muerte) crlf)
+    (printout t "Generos: " (send ?autor get-generos) crlf)
+    (printout t "Temas: " (send ?autor get-temas) crlf)
+    (printout t "Epocas: " (send ?autor get-epocas) crlf)
+    (printout t "Libros: " (send ?autor get-libros) crlf)
+  )
+)
+
+(deffunction imprimir-generos ()
+  (printout t "Lista de generos:" crlf)
+  (do-for-all-instances ((?genero Genero))
+    (printout t "ID: " (instance-name ?genero) crlf)
+    (printout t "Nombre: " (send ?genero get-nombre) crlf)
+    (printout t "Autores: " (send ?genero get-autores) crlf)
+    (printout t "Temas: " (send ?genero get-temas) crlf)
+    (printout t "Epocas: " (send ?genero get-epocas) crlf)
+    (printout t "Libros: " (send ?genero get-libros) crlf)
+  )
+)
+
+(deffunction imprimir-temas ()
+  (printout t "Lista de temas:" crlf)
+  (do-for-all-instances ((?tema Tema))
+    (printout t "ID: " (instance-name ?tema) crlf)
+    (printout t "Nombre: " (send ?tema get-nombre) crlf)
+    (printout t "Autores: " (send ?tema get-autores) crlf)
+    (printout t "Generos: " (send ?tema get-generos) crlf)
+    (printout t "Epocas: " (send ?tema get-epocas) crlf)
+    (printout t "Libros: " (send ?tema get-libros) crlf)
+  )
+)
+
+(deffunction imprimir-epocas ()
+  (printout t "Lista de epocas:" crlf)
+  (do-for-all-instances ((?epoca Epoca))
+    (printout t "ID: " (instance-name ?epoca) crlf)
+    (printout t "Nombre: " (send ?epoca get-nombre) crlf)
+    (printout t "Autores: " (send ?epoca get-autores) crlf)
+    (printout t "Generos: " (send ?epoca get-generos) crlf)
+    (printout t "Temas: " (send ?epoca get-temas) crlf)
+    (printout t "Libros: " (send ?epoca get-libros) crlf)
+  )
+)
+
+(deffunction imprimir-libros ()
+  (printout t "Lista de libros:" crlf)
+  (do-for-all-instances ((?libro Libro))
+    (printout t "ID: " (instance-name ?libro) crlf)
+    (printout t "Titulo: " (send ?libro get-titulo) crlf)
+    (printout t "Autores: " (send ?libro get-autores) crlf)
+    (printout t "Generos: " (send ?libro get-generos) crlf)
+    (printout t "Temas: " (send ?libro get-temas) crlf)
+    (printout t "Epocas: " (send ?libro get-epocas) crlf)
+    (printout t "Idiomas: " (send ?libro get-idiomas) crlf)
+    (printout t "Valoracion: " (send ?libro get-valoracion) crlf)
+    (printout t "Popularidad: " (send ?libro get-popularidad) crlf)
+    (printout t "Moda: " (send ?libro get-moda) crlf)
+    (printout t "Complejidad: " (send ?libro get-complejidad) crlf)
+    (printout t "Extension: " (send ?libro get-extension) crlf)
+    (printout t "Formato: " (send ?libro get-formato) crlf)
+    (printout t "Estatus: " (send ?libro get-estatus) crlf)
+    (printout t "Nivel lector: " (send ?libro get-nivel_lector) crlf)
+    (printout t "Razon: " (send ?libro get-razon) crlf)
+    (printout t "Puntaje: " (send ?libro get-puntaje) crlf)
+  )
+)
+
+(deffunction imprimir-idiomas ()
+  (printout t "Lista de idiomas:" crlf)
+  (do-for-all-instances ((?idioma Idioma))
+    (printout t "ID: " (instance-name ?idioma) crlf)
+    (printout t "Nombre: " (send ?idioma get-nombre) crlf)
+    (printout t "Libros: " (send ?idioma get-libros) crlf)
+  )
+
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;funciones para booleanas ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;,
+
+(deffunction calcular-estatus (?libro)
+  (bind ?valoracion (send ?libro get-valoracion_media))
+  (bind ?popularidad (send ?libro get-popularidad))
+  (bind ?moda (send ?libro get-de_moda))
+
+  ; Lógica para calcular el estatus en función de valoración, popularidad y moda
+  (if (and ?popularidad ?moda)
+    then
+    (if (>= ?valoracion 4)
+      then
+      (return "Bueno")
+      else
+      (if (>= ?valoracion 2)
+        then
+        (return "Normal")
+        else
+        (return "Malo")
+      )
+    )
+  else
+    (return "Malo")
+  )
+)
+
+
+(deffunction cumple-restricion-instancias (?instancia ?lista-instancias)
+  (member$ ?instancia ?lista-instancias)
+)
+
+(deffunction cumple-con-solucion (?libro ?generos ?temas ?autores ?nivel2 ?estatus2)
+  (bind ?cumple FALSE)
+  (bind ?genero (send ?libro get-genero_de_libro))
+  (bind ?tema (send ?libro get-tema_de_libro))
+  (bind ?autor (send ?libro get-escrito_por))
+  (bind ?nivel (send ?libro get-NivelLector))
+  (bind ?estatus (calcular-estatus ?libro))
+  
+  ;;quiero que retorne FALSE SI NO CUMPLE CON NADA!!
+  (if (or (cumple-restricion-instancias ?genero ?generos)
+          (cumple-restricion-instancias ?tema ?temas)
+          (cumple-restricion-instancias ?autor ?autores)
+          (eq ?nivel ?nivel2)
+          (eq ?estatus ?estatus2)
+          )
+    then
+    (bind ?cumple TRUE)
+  )
+  ?cumple
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; deftemplates para problema abstracto y solcuion abstracto ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (deftemplate MAIN::ProblemaAbstracto
   (slot NivelPersonal
     (type SYMBOL)
@@ -200,6 +376,7 @@
   )    
 )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; MODULOS ;:::::::::
 (deftemplate MAIN::datos-libros
    (multislot lista-libros)
 )
@@ -217,7 +394,6 @@
 	(export ?ALL)
 )
 
-
 ;;; Modulo de solucion, una vez que tengamos el problema abstracto definido
 (defmodule generar-solucion
 	(import MAIN ?ALL)
@@ -234,6 +410,7 @@
   (export ?ALL)
 )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;REGLAS;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defrule MAIN::iniPrograma "Regla PARA INICIAR EL PROGRAMA"
 	(declare (salience 10))
 	=>
@@ -687,7 +864,6 @@
 )
 
 
-
 (defrule generar-solucion::CopiarEstatusLibro
   ?problema <- (ProblemaAbstracto
                  (EstatusLibro ?estatusLibro))
@@ -743,58 +919,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; MODULO PROCESAR LIBROS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-(deffunction calcular-estatus (?libro)
-  (bind ?valoracion (send ?libro get-valoracion-media))
-  (bind ?popularidad (send ?libro get-popularidad))
-  (bind ?moda (send ?libro get-de_moda))
-
-  ; Lógica para calcular el estatus en función de valoración, popularidad y moda
-  (if (and ?popularidad ?moda)
-    then
-    (if (>= ?valoracion 4)
-      then
-      (return "Bueno")
-      else
-      (if (>= ?valoracion 2)
-        then
-        (return "Normal")
-        else
-        (return "Malo")
-      )
-    )
-  else
-    (return "Malo")
-  )
-)
-
-(deffunction cumple-restricion-instancias (?instancia ?lista-instancias)
-  (member$ ?instancia ?lista-instancias)
-)
-
-
-(deffunction cumple-con-solucion (?libro ?solucion)
-  (bind ?cumple FALSE)
-  (bind ?genero (send ?libro get-genero_de_libro))
-  (bind ?tema (send ?libro get-tema_de_libro))
-  (bind ?autor (send ?libro get-autor_de_libro))
-  (bind ?nivel (send ?libro get-nivel_de_lector))
-  (bind ?estatus (calcular-estatus ?libro))
-
-  ;;quiero que retorne FALSE SI NO CUMPLE CON NADA!!
-  (if (or (cumple-restricion-instancias ?genero (send ?solucion get-Genero))
-          (cumple-restricion-instancias ?tema (send ?solucion get-Temas))
-          (cumple-restricion-instancias ?autor (send ?solucion get-Autores))
-          (eq ?nivel (send ?solucion get-NivelLector))
-          (eq ?estatus (send ?solucion get-EstatusLibro))
-          )
-    then
-    (bind ?cumple TRUE)
-  )
-  ?cumple
-)
-
-
 (defrule procesar-libros::crear-lista-de-libros
   (not (lista-de-libros $?))
   =>
@@ -804,108 +928,63 @@
   (printout t ?libros crlf)
 )
 
-(deffunction print-recomendaciones ()
-  (printout t "Estas son las recomendaciones:" crlf)
-   (bind ?recomendaciones (find-all-instances ((?rec RecomendacionDetalle)) TRUE))
-    (bind ?i 1)
-    (foreach ?rec ?recomendaciones
-        (printout t ?i ". " (send ?rec get-libro) crlf)
-        (bind ?i (+ ?i 1))
-    )
-)
-
-
 (defrule procesar-libros::crear-puntuacion-recomendaciones
   ?lista-de-libros <- (lista-de-libros $?libros)
-  ?solucion <- (SolucionAbstracta)
+  ?solucion <- (SolucionAbstracta (Genero $?generos) (Temas $?temas) (Autores $?autores) (NivelLector ?nivel) (EstatusLibro ?estatus2))
   (test (> (length$ ?libros) 0))
   =>
   (printout t "Regla: Crear Puntuación y Recomendaciones" crlf)
   (foreach ?libro ?libros
-    (if (cumple-con-solucion ?libro ?solucion)
+    (if (cumple-con-solucion ?libro ?generos ?temas ?autores ?nivel ?estatus2)
       then
       (bind ?puntuacion 0)
       (bind ?razon "")
       
       ;; Comprobar restricciones y asignar puntaje
-      (if (cumple-restricion-instancias(send ?libro get-genero_de_libro) (send ?solucion get-Genero))
+      (if (cumple-restricion-instancias(send ?libro get-genero_de_libro) ?generos)
         then
         (bind ?puntuacion (+ ?puntuacion 10))
-        (bind ?razon (str-cat ?razon " Cumple género."))
+        (bind ?razon (str-cat ?razon "Cumple género."))
       )
 
-      (if (cumple-restricion-instancias(send ?libro get-tema_de_libro) (send ?solucion get-Temas))
+      (if (cumple-restricion-instancias(send ?libro get-tema_de_libro) ?temas)
         then
         (bind ?puntuacion (+ ?puntuacion 10))
-        (bind ?razon (str-cat ?razon " Cumple tema."))
-      )
+        (bind ?razon (str-cat ?razon "Cumple tema."))
+      ) 
 
-      (if (cumple-restricion-instancias(send ?libro get-autor_de_libro) (send ?solucion get-Autores))
+      (if (cumple-restricion-instancias(send ?libro get-escrito_por) ?autores)
         then
         (bind ?puntuacion (+ ?puntuacion 10))
-        (bind ?razon (str-cat ?razon " Cumple autor."))
+        (bind ?razon (str-cat ?razon "Cumple autor."))
       )
 
-      (if (eq (send ?libro get-nivel_de_lector) (send ?solucion get-NivelLector))
+      (if (eq (send ?libro get-NivelLector) ?nivel)
         then
         (bind ?puntuacion (+ ?puntuacion 5))
-        (bind ?razon (str-cat ?razon " Cumple nivel lector."))
+        (bind ?razon (str-cat ?razon "Cumple nivel lector."))
       )
       ;;hay que calcular el estatus del libro! se calcula asi
       (bind ?estatus (calcular-estatus ?libro))
-      (if (eq ?estatus (send ?solucion get-EstatusLibro))
+      (if (eq ?estatus ?estatus2)
         then
         (bind ?puntuacion (+ ?puntuacion 5))
-        (bind ?razon (str-cat ?razon " Cumple estatus."))
+        (bind ?razon (str-cat ?razon "Cumple estatus."))
       )
   
-      ;; Repetir para otras restricciones (autor, tema, etc.)
       
       ;; Crear instancia de RecomendacionDetalle
-        (bind ?recomendacion (make-instance RecomendacionDetalle of RecomendacionDetalle))
+        (bind ?recomendacion (make-instance recomen of RecomendacionDetalle))
         (send ?recomendacion put-libro ?libro)
-        (send ?recomendacion put-puntuacion ?puntuacion)
+        (send ?recomendacion put-puntaje ?puntuacion)
         (send ?recomendacion put-razon ?razon)
     )
   )
+  (imprimir-recomendaciones)
 )
 
+(defrule proce)
 
-; (deftemplate MAIN::SolucionAbstracta
-;   (slot Dificultad
-;     (type SYMBOL)
-;     (allowed-symbols Facil Moderado Dificil)
-;   )
-;   (multislot Genero
-;     (type INSTANCE)
-;   )
-;   (multislot Temas
-;     (type INSTANCE)
-;   )
-;   (multislot Autores
-;     (type INSTANCE)
-;   )
-;   (slot EstatusLibro
-;     (type SYMBOL)
-;     (allowed-symbols Bueno Malo Normal)
-;   )
-;   (slot NivelLector
-;     (type SYMBOL)
-;     (allowed-symbols Principiante Intermedio Avanzado)
-;   )
-;   (slot TratadoCopiaDatos
-;     (type SYMBOL)
-;     (default FALSE)
-;   )  
-;   (slot TratadoEstatus
-;     (type SYMBOL)
-;     (default FALSE)
-;   )
-;   (slot TratadoNivelLector
-;     (type SYMBOL)
-;     (default FALSE)
-;   )    
-; )
 
 
 
