@@ -1,4 +1,3 @@
-
 (defmodule MAIN (export ?ALL))
 
 (deffunction pregunta-numerica (?pregunta ?rangini ?rangfi)
@@ -45,7 +44,7 @@
         ; (printout t ?opciones crlf)
         ; (printout t ?res crlf)
 
-        (if (and (integerp ?resposta) (> ?resposta 0) (< ?resposta (length$ ?opciones)))
+        (if (and (integerp ?resposta) (> ?resposta 0) (<= ?resposta (length$ ?opciones)))
             then
                 (bind ?opcion_valida TRUE)
                 (bind ?opcion (nth$ ?resposta ?opciones))
@@ -117,12 +116,15 @@
         (printout t ?pregunta crlf)
         (bind ?respuesta (read))
 
-        (if (not (integerp ?respuesta))
+        (if (integerp ?respuesta)
             then
+            (if(< ?respuesta 0)
+            then 
             (printout t "El valor introducido: " ?respuesta " no es correcto. Ingresa de nuevo" crlf)
-            (bind ?noValid "NO")
-            else
-            (bind ?noValid "SI")
+            else (bind ?noValid "SI")
+            )
+            else  
+            (printout t "El valor introducido: " ?respuesta " no es un entero. Ingresa de nuevo" crlf)
         )
     )
 
@@ -132,15 +134,17 @@
 (deftemplate MAIN::ProblemaAbstracto
   (slot NivelPersonal
     (type SYMBOL)
-    (allowed-symbols Bajo Medio Alto)
+    ; (allowed-symbols Bajo Medio Alto)
+    (default NULL)
   )
   (slot NivelLiterario
     (type SYMBOL)
-    (allowed-symbols Bajo Medio Alto)
+    (default NULL)
   )
   (slot EstatusLibro
     (type SYMBOL)
-    (allowed-symbols Bueno Malo Normal))
+    ; (allowed-symbols Bueno Malo Normal)
+    (default NULL))
   (multislot GenerosInteres
     (type INSTANCE)
   )
@@ -149,6 +153,14 @@
   )
   (multislot TemasInteres
     (type INSTANCE)
+  )  
+  (slot TratadoCopiaDatos
+    (type SYMBOL)
+    (default FALSE)
+  )
+  (slot TratadoEstatus
+    (type SYMBOL)
+    (default FALSE)
   )  
 )
 
@@ -174,17 +186,43 @@
     (type SYMBOL)
     (allowed-symbols Principiante Intermedio Avanzado)
   )
-  ; Puedes agregar más atributos según sea necesario
+  (slot TratadoCopiaDatos
+    (type SYMBOL)
+    (default FALSE)
+  )  
+  (slot TratadoEstatus
+    (type SYMBOL)
+    (default FALSE)
+  )
+  (slot TratadoNivelLector
+    (type SYMBOL)
+    (default FALSE)
+  )    
 )
-
-
 
 (deftemplate MAIN::datos-libros
    (multislot lista-libros)
 )
+
 ;;; Modulo de recopilacion de los datos del grupo + preferencias
 (defmodule entrada_de_informacion_lector
 	(import MAIN ?ALL)
+	(export ?ALL)
+)
+
+;;; Modulo de proceso de datos, una vez que tengamos todos los datos del lector solo tenemos que procsarolo
+(defmodule procesado-datos
+	(import MAIN ?ALL)
+  (import entrada_de_informacion_lector ?ALL)
+	(export ?ALL)
+)
+
+
+;;; Modulo de solucion, una vez que tengamos el problema abstracto definido
+(defmodule generar-solucion
+	(import MAIN ?ALL)
+	(import entrada_de_informacion_lector  ?ALL)
+	(import procesado-datos  ?ALL)
 	(export ?ALL)
 )
 
@@ -258,7 +296,6 @@
     ;(printout t (send ?lector get-temas_preferidos)crlf)
 )
 
-
 (defrule entrada_de_informacion_lector::establecer-autores-preferidos "Establece autores preferidos del lector"
     ?lector <- (object (is-a Lector))
     =>
@@ -266,22 +303,22 @@
     (while (eq ?entradaNoValida "NO")
         (bind ?numAutoresPreferidos (pregunta_respuesta_numerica "Indica el numero de autores preferidos del que te acuerdas el nombre."))
         (bind ?autores_pref (create$))
-        (if (integerp ?numAutoresPreferidos)
-            then
-            (if (> ?numAutoresPreferidos 0)
-            then 
-            (bind ?entradaNoValida "SI")
-            (loop-for-count (?i 1 ?numAutoresPreferidos) do
-                (printout t "Indica el autor número: " ?i " de tu lista de autores preferidos:" crlf)
-                (bind ?nombre (readline))
-                    (bind ?autor (find-all-instances ((?autor Autor)) (eq ?autor:nombre ?nombre)))
-                    (bind ?autores_pref (insert$ ?autores_pref 1 ?autor))
+          (if (> ?numAutoresPreferidos 0)
+          then 
+          (bind ?entradaNoValida "SI")
+          (loop-for-count (?i 1 ?numAutoresPreferidos) do
+              (printout t "Indica el autor número: " ?i " de tu lista de autores preferidos:" crlf)
+              (bind ?nombre (readline))
+                  (bind ?autor (find-all-instances ((?autor Autor)) (eq ?autor:nombre ?nombre)))
+                  (bind ?autores_pref (insert$ ?autores_pref 1 ?autor))
+          )
+          (send ?lector put-autores_preferidos ?autores_pref)
+          else 
+            (if (= ?numAutoresPreferidos 0) 
+              then  (bind ?entradaNoValida "SI")
             )
-            (send ?lector put-autores_preferidos ?autores_pref)
-            )
-            else 
-                (printout t "La entrada: "?numAutoresPreferidos " no es un entero." crlf)
-        )
+          )
+
     )
     (printout t (send ?lector get-autores_preferidos)crlf)
 )
@@ -292,14 +329,11 @@
     =>
     (bind ?generos (find-all-instances ((?generos Genero)) TRUE)) 
     (bind $?generos-names (create$))
-    
     (loop-for-count (?i 1 (length$ ?generos)) do
         (bind ?nombre (send (nth$ ?i ?generos) get-nombre))
         (bind ?generos-names (insert$ ?generos-names 1 ?nombre))
     )
-
     (bind $?generos_preferidos (pregunta_opciones_multi_respuesta "Selecciona los índices de los generos a los que desearías que pertenecieran los libros." ?generos-names))
-
     ;(printout t "Estos son los temas que devuelve la pregunta:"?temas_preferidos crlf) 
     (bind ?generos-matching-preferidos (create$))
     (loop-for-count (?i 1 (length$ ?generos_preferidos)) do
@@ -316,14 +350,11 @@
     =>
     (bind ?epocas (find-all-instances ((?epoca Epoca)) TRUE)) 
     (bind $?epocas-names (create$))
-    
     (loop-for-count (?i 1 (length$ ?epocas)) do
         (bind ?nombre (send (nth$ ?i ?epocas) get-nombre))
         (bind ?epocas-names (insert$ ?epocas-names 1 ?nombre))
     )
-
     (bind $?epocas_preferidos (pregunta_opciones_multi_respuesta "Selecciona los índices de las épocas a las que desearías que pertenecieran los libros." ?epocas-names))
-
     ;(printout t "Estos son los temas que devuelve la pregunta:"?temas_preferidos crlf) 
     (bind ?epocas-matching-preferidos (create$))
     (loop-for-count (?i 1 (length$ ?epocas_preferidos)) do
@@ -382,31 +413,28 @@
 (defrule entrada_de_informacion_lector::establecer-idiomas-lector "Establece idiomas en los que el lector lee los libros"
     ?lector <- (object (is-a Lector))
     =>
-    (bind ?entradaNoValida "NO")
-    (while (eq ?entradaNoValida "NO")
-        (bind ?numIdiomasPreferidos (pregunta_respuesta_numerica "¿En cuántos idiomas puedes leer libros?"))
-        (bind ?idiomas_autor (create$))
-        (if (and (> ?numIdiomasPreferidos 0) (integerp ?numIdiomasPreferidos))
-            then
-            (bind ?entradaNoValida "SI")
-            (loop-for-count (?i 1 ?numIdiomasPreferidos) do
-                (printout t "Indica el nombre del idioma número: " ?i " de tu lista de idiomas:" crlf)
-                (bind ?nombre (readline))
-                    (bind ?idioma (find-all-instances ((?idioma Idioma)) (eq ?idioma:nombre ?nombre)))
-                    (bind ?idiomas_autor (insert$ ?idiomas_autor 1 ?idioma))
-            )
-            (send ?lector put-lee_en_idiomas ?idiomas_autor)
-            else 
-                (printout t "El número no es un entero." crlf)
-        )
+    (bind ?idiomas (find-all-instances ((?idioma Idioma)) TRUE)) 
+    (bind $?idiomas-names (create$))
+    (loop-for-count (?i 1 (length$ ?idiomas)) do
+        (bind ?nombre (send (nth$ ?i ?idiomas) get-nombre))
+        (bind ?idiomas-names (insert$ ?idiomas-names 1 ?nombre))
     )
+    (bind $?idiomas_selec (pregunta_opciones_multi_respuesta "Selecciona los idiomas en los que te gustaria que el libro este escrito." ?idiomas-names))
+    ;(printout t "Estos son los temas que devuelve la pregunta:"?temas_preferidos crlf) 
+    (bind ?idiomas-matching-preferidos (create$))
+    (loop-for-count (?i 1 (length$ ?idiomas_selec)) do
+        (bind ?nombre (nth$ ?i ?idiomas_selec))
+        (bind ?idioma (find-all-instances ((?idioma Idioma)) (eq ?idioma:nombre ?nombre)))
+        (bind ?idiomas-matching-preferidos (insert$ ?idiomas-matching-preferidos 1 ?idioma))
+    )
+    (send ?lector put-lee_en_idiomas ?idiomas-matching-preferidos)
     (printout t (send ?lector get-lee_en_idiomas)crlf)
 )
 
 (defrule entrada_de_informacion_lector::establecer-preferencia-moda "Establece si el lector prefiere libros de moda"
     ?lector <- (object (is-a Lector))
     =>
-    (bind ?respuesta (pregunta_si_o_no "¿Prefieres libros qu estan de moda?"))
+    (bind ?respuesta (pregunta_si_o_no "¿Prefieres libros que estan de moda?"))
     
     (if (eq ?respuesta TRUE)
         then 
@@ -451,12 +479,12 @@
     (bind ?entradaNoValida1 "NO")
     (while (eq ?entradaNoValida1 "NO")
         (bind ?numLibros (pregunta_respuesta_numerica "¿Cuántos horas tienes pensado dedicar a la semana para leer libros?"))
-    (if (and (> ?numLibros 0) (integerp ?numLibros))
+    (if (and (>= ?numLibros 0) (integerp ?numLibros))
         then
             (bind ?entradaNoValida1 "SI")
             (send ?lector put-tiempo_semanal_lectura ?numLibros)
         else 
-        (printout t "El número no es un entero o es menor o igual a 0." crlf)
+        (printout t "El número no es un entero o es menor a 0." crlf)
     )
     )
     (printout t (send ?lector get-tiempo_semanal_lectura)crlf)
@@ -470,16 +498,27 @@
     (printout t (send ?lector get-lugar_de_lectura)crlf)
 )
 
+(defrule entrada_de_informacion_lector::cambiar_a_procesado_datos "Regla para cambiar a procesado de datos"
+    =>
+    (focus procesado-datos)
+    (printout t "Cambiando a procesado de datos" crlf)
+)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; MODULO ASIGNACION PROBLEMA ABSTRACTO
 
-(defrule CalcularNivelPersonal
-  ?lector <- (object (is-a Lector))
-               (idiomas_habla $?idiomas)
-               (tiempo_semanal_lectura ?tiempo)
-               (edad ?edad)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; MODULO ASIGNACION PROBLEMA ABSTRACTO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defrule procesado-datos::CalcularNivelPersonal
+  ?lector <- (object (is-a Lector)
+                      (tiempo_semanal_lectura ?tiempo)
+                      (lee_en_idiomas $?idiomas)
+                      (edad ?edad)
+                      (nombre ?nombre))
+  (not (ProblemaAbstracto))
   =>
+  (printout t "Calculando Nivel Personal para el lector " ?nombre crlf)
+
   (bind ?numIdiomas (length$ ?idiomas))
+  (printout t ?numIdiomas)
   (bind ?nivel Bajo)
   
   ; Combinaciones para "Alto" Nivel
@@ -497,24 +536,22 @@
       )
     )
   )
-  
-  (assert
-    (ProblemaAbstracto
-      (NivelPersonal ?nivel)
-    )
-  )
+  ;
+  (assert (ProblemaAbstracto (NivelPersonal ?nivel)))
 )
 
 
-(defrule CalcularNivelLiterario
-   ?lector <- (object (is-a Lector))
-               (numero_de_libros_leidos ?numLibrosLeidos)
-               (complejidad ?complejidad)
-               (extension ?extension)
-               (actividad_de_lectura_social ?actividadSocial&:(or (eq ?actividadSocial true) (eq ?actividadSocial false)))
+(defrule procesado-datos::CalcularNivelLiterario
+  ?lector <- (object (is-a Lector)
+                      (numero_de_libros_leidos ?numLibrosLeidos)
+                 (interes_complejo ?complejidad)
+               (interes_extenso ?extension)
+               (actividad_de_lectura_social ?actividadSocial))
+  ?problema <- (ProblemaAbstracto (NivelLiterario ?nivelLiterario))
+  (test (eq ?nivelLiterario NULL))
   =>
   (bind ?nivel Bajo)
-  
+  (printout t "regla 2"crlf)
   ; Combinaciones para "Alto" Nivel
   (if (and (>= ?numLibrosLeidos 20) (eq ?complejidad TRUE) (eq ?extension true))
     then
@@ -530,42 +567,46 @@
     )
   )
   
-  (assert
-    (ProblemaAbstracto
-      (NivelLiterario ?nivel)
-    )
+  (modify ?problema
+    (NivelLiterario ?nivel)
   )
 )
 
-
-(defrule CopiarDatosALProblemaAbstracto
-  ?lector <- (object (is-a Lector))
+(defrule procesado-datos::CopiarDatosALProblemaAbstracto
+  ?lector <- (object (is-a Lector)
                (autores_preferidos $?autores)
                (generos_preferidos $?generos)
-               (temas_preferidos $?temas)
+               (temas_preferidos $?temas))
+ ?problema <- (ProblemaAbstracto (TratadoCopiaDatos ?tratado))
+  (test (eq ?tratado FALSE))
   =>
   ;retorna un subconjcto de 3 o menos instancias de la lista de los generos autores y temas del lector concreto
+  (printout t "regla 3"crlf)
+
   (bind ?autoresSeleccionados (subseq$ ?autores 0 3))
   (bind ?generosSeleccionados (subseq$ ?generos 0 3))
   (bind ?temasSeleccionados (subseq$ ?temas 0 3))
 
-  (assert
-    (ProblemaAbstracto
-      (AutoresInteres $?autoresSeleccionados)
-      (GenerosInteres $?generosSeleccionados)
-      (TemasInteres $?temasSeleccionados)
-    )
+  ; Copiar AutoresPreferidos, GenerosPreferidos y TemasPreferidos del Lector a ProblemaAbstracto
+  (modify ?problema
+    (AutoresInteres $?autoresSeleccionados)
+    (GenerosInteres $?generosSeleccionados)
+    (TemasInteres $?temasSeleccionados)
+    (TratadoCopiaDatos TRUE)
   )
 )
 
 
-(defrule EstablecerEstatusLibro
-  ?lector <- (object (is-a Lector))
+(defrule procesado-datos::EstablecerEstatusLibro
+  ?lector <- (object (is-a Lector)
                (interes_valoracion ?valoracion)
                (interes_popularidad ?popularidad)
-               (interes_moda ?moda)
+               (interes_moda ?moda))
+  ?problema <- (ProblemaAbstracto (TratadoEstatus ?tratado))
+  (test (eq ?tratado FALSE))
   =>
   (bind ?estatus Normal) 
+  (printout t "regla 4"crlf)
 
   (if (and (eq ?valoracion true) (eq ?popularidad true) (eq ?moda true))
     then
@@ -575,22 +616,31 @@
       then
       (bind ?estatus Malo)
   ))
-
-    (assert
-    (ProblemaAbstracto
-      (EstatusLibro ?estatus)
-    )
+  (modify ?problema
+    (EstatusLibro ?estatus)
+    (TratadoEstatus TRUE)
   )
 )
 
+(defrule procesado-datos::Cambiar_a_generar_solucion "Regla para cambiar a generar solucion"
+    ?lector <- (object (is-a Lector))
+    ?problema <- (ProblemaAbstracto)
+    =>
+    (focus generar-solucion)
+  (printout t "regla 5"crlf)
 
-(defrule DerivarDificultad
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defrule generar-solucion::DerivarDificultad
   ?problema <- (ProblemaAbstracto
                  (NivelPersonal ?nivelPersonal)
                  (NivelLiterario ?nivelLiterario))
   =>
   ; Determinar Dificultad en función de Nivel Personal y Nivel Literario
   (bind ?dificultad Moderado) ; Valor por defecto
+  (printout t "regla 6"crlf)
   (if (or (eq ?nivelPersonal Bajo) (eq ?nivelLiterario Bajo))
     then
     (bind ?dificultad Facil)
@@ -606,52 +656,118 @@
       (Dificultad ?dificultad)
     )
   )
+  (printout t "regla 6 final" ?dificultad crlf)
 )
 
-(defrule CopiarGenerosYTemas
+(defrule generar-solucion::CopiarGenerosYTemasYAutores
   ?problema <- (ProblemaAbstracto
                  (GenerosInteres $?generosInteres)
                  (TemasInteres $?temasInteres)
                  (AutoresInteres $?autoresInteres))
-  ?solucion <- (SolucionAbstracta)
+  ?solucion <- (SolucionAbstracta (TratadoCopiaDatos ?tratado))
+  (test (eq ?tratado FALSE))
   =>
+  (printout t "regla 7"crlf)
+
   ; Copiar GenerosInteres y TemasInteres del ProblemaAbstracto a la SolucionAbstracta
   (modify ?solucion
     (Genero $?generosInteres)
     (Temas $?temasInteres)
     (Autores $?autoresInteres)
+    (TratadoCopiaDatos TRUE)
   )
 )
+
+
 
 (defrule CopiarEstatusLibro
   ?problema <- (ProblemaAbstracto
                  (EstatusLibro ?estatusLibro))
-  ?solucion <- (SolucionAbstracta)
+  ?solucion <- (SolucionAbstracta (TratadoEstatus ?tratado))
+  (test (eq ?tratado FALSE))
   =>
+  (printout t "regla 8"crlf)
+
   ; Copiar el valor de EstatusLibro del ProblemaAbstracto a la SolucionAbstracta
   (modify ?solucion
     (EstatusLibro ?estatusLibro)
+    (TratadoEstatus TRUE)
   )
 )
 
-(defrule DerivarNivelLector
+(defrule generar-solucion::DerivarNivelLector
   ?problema <- (ProblemaAbstracto
                  (NivelPersonal ?nivelPersonal))
-  ?solucion <- (SolucionAbstracta)
+  ?solucion <- (SolucionAbstracta (TratadoNivelLector ?tratado))
+  (test (eq ?tratado FALSE))
   =>
+  (printout t "regla 9"crlf)
+ 
   (if (eq ?nivelPersonal Bajo)
     then
-    (modify ?solucion (NivelLector Principiante))
+    (modify ?solucion (NivelLector Principiante)
+      (TratadoNivelLector TRUE))
   else
     (if (eq ?nivelPersonal Medio)
       then
-      (modify ?solucion (NivelLector Intermedio))
+      (modify ?solucion (NivelLector Intermedio)
+        (TratadoNivelLector TRUE))
     else
       (if (eq ?nivelPersonal Alto)
         then
-        (modify ?solucion (NivelLector Avanzado))
+        (modify ?solucion (NivelLector Avanzado)
+          (TratadoNivelLector TRUE))
       )
     )
   )
 
 )
+
+;;ESTADO ACTUAL (BEST CASE SUPONEMOS QUE FUNCIONA TODO)
+;; TENEMOS 3 MODULOS
+;; 1 --> ENTRADA DATOS LECTOR (PREGUNTAS) PROBLEMA CONCRETO
+;; 2 --> RECOGER DATOS Y PASARLOS A PROBLEMA ABSTRACTO
+;; 3 --> A PARTIR DE PROBLEMA ABSTRACTO GENERAR SOLUCION ABSTRACTA
+
+;;ESTADO ACTUAL (BEST CASE SUPONEMOS QUE FUNCIONA TODO)
+;; TENEMOS 3 MODULOS
+;; 1 --> ENTRADA DATOS LECTOR (PREGUNTAS) PROBLEMA CONCRETO
+;; 2 --> RECOGER DATOS Y PASARLOS A PROBLEMA ABSTRACTO
+;; 3 --> A PARTIR DE PROBLEMA ABSTRACTO GENERAR SOLUCION ABSTRACTA
+
+;; AHORA HAY QUE HACER QUE EL SISTEMA RECOMIENDE LOS LIBROS QUE CUMPLAN CON LA SOLUCION ABSTRACTA
+
+;;LO HAREMOS EN DOS PASOS 
+;; 1 . DESCARTE DE LIBROS QUE NO CUMPLAN NADA
+;; 2 . ORDENAR LOS LIBROS QUE CUMPLAN POR PUNTUACION Y CADA VEZ QUE AUMENTEMOS DE PUNTOS 
+    ;; CADA VEZ QUE AUMENTEMOS DE PUNTOS A UN LIBRO X --> hay que guardar en algun lado que hemos aumentado de puntos a ese libro por y razon
+    ;; pueden haber muchas razones por la cual hemos uamentado los puntos
+    ;; al final printeamos los 3 con mas puntos y sus respectivos razones
+    ;; en defecto, si no hay 3 se completa con libros con mayores ventas
+    
+;;ESTADO ACTUAL (BEST CASE SUPONEMOS QUE FUNCIONA TODO)
+;; TENEMOS 3 MODULOS
+;; 1 --> ENTRADA DATOS LECTOR (PREGUNTAS) PROBLEMA CONCRETO
+;; 2 --> RECOGER DATOS Y PASARLOS A PROBLEMA ABSTRACTO
+;; 3 --> A PARTIR DE PROBLEMA ABSTRACTO GENERAR SOLUCION ABSTRACTA
+
+;; AHORA HAY QUE HACER QUE EL SISTEMA RECOMIENDE LOS LIBROS QUE CUMPLAN CON LA SOLUCION ABSTRACTA
+
+;;LO HAREMOS EN DOS PASOS 
+;; 1 . DESCARTE DE LIBROS QUE NO CUMPLAN NADA
+;; 2 . ORDENAR LOS LIBROS QUE CUMPLAN POR PUNTUACION Y CADA VEZ QUE AUMENTEMOS DE PUNTOS 
+    ;; CADA VEZ QUE AUMENTEMOS DE PUNTOS A UN LIBRO X --> hay que guardar en algun lado que hemos aumentado de puntos a ese libro por y razon
+    ;; pueden haber muchas razones por la cual hemos uamentado los puntos
+    ;; al final printeamos los 3 con mas puntos y sus respectivos razones
+    ;; en defecto, si no hay 3 se completa con libros con mayores ventas
+    
+;; AHORA HAY QUE HACER QUE EL SISTEMA RECOMIENDE LOS LIBROS QUE CUMPLAN CON LA SOLUCION ABSTRACTA
+
+;;LO HAREMOS EN DOS PASOS 
+;; 1 . DESCARTE DE LIBROS QUE NO CUMPLAN NADA
+;; 2 . ORDENAR LOS LIBROS QUE CUMPLAN POR PUNTUACION Y CADA VEZ QUE AUMENTEMOS DE PUNTOS 
+    ;; CADA VEZ QUE AUMENTEMOS DE PUNTOS A UN LIBRO X --> hay que guardar en algun lado que hemos aumentado de puntos a ese libro por y razon
+    ;; pueden haber muchas razones por la cual hemos uamentado los puntos
+    ;; al final printeamos los 3 con mas puntos y sus respectivos razones
+    ;; en defecto, si no hay 3 se completa con libros con mayores ventas
+    
