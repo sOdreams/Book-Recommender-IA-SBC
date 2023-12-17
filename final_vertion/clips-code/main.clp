@@ -226,6 +226,14 @@
 	(export ?ALL)
 )
 
+(defmodule procesar-libros
+  (import MAIN ?ALL)
+  (import entrada_de_informacion_lector  ?ALL)
+  (import procesado-datos  ?ALL)
+  (import generar-solucion  ?ALL)
+  (export ?ALL)
+)
+
 (defrule MAIN::iniPrograma "Regla PARA INICIAR EL PROGRAMA"
 	(declare (salience 10))
 	=>
@@ -680,7 +688,7 @@
 
 
 
-(defrule CopiarEstatusLibro
+(defrule generar-solucion::CopiarEstatusLibro
   ?problema <- (ProblemaAbstracto
                  (EstatusLibro ?estatusLibro))
   ?solucion <- (SolucionAbstracta (TratadoEstatus ?tratado))
@@ -723,11 +731,183 @@
 
 )
 
-;;ESTADO ACTUAL (BEST CASE SUPONEMOS QUE FUNCIONA TODO)
-;; TENEMOS 3 MODULOS
-;; 1 --> ENTRADA DATOS LECTOR (PREGUNTAS) PROBLEMA CONCRETO
-;; 2 --> RECOGER DATOS Y PASARLOS A PROBLEMA ABSTRACTO
-;; 3 --> A PARTIR DE PROBLEMA ABSTRACTO GENERAR SOLUCION ABSTRACTA
+(defrule generar-solucion::Cambiar_a_procesar_libros "Regla para cambiar a procesar libros"
+    ?lector <- (object (is-a Lector))
+    ?problema <- (ProblemaAbstracto)
+    ?solucion <- (SolucionAbstracta)
+    =>
+    (focus procesar-libros)
+  (printout t "regla 10"crlf)
+
+)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; MODULO PROCESAR LIBROS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(deffunction calcular-estatus (?libro)
+  (bind ?valoracion (send ?libro get-valoracion-media))
+  (bind ?popularidad (send ?libro get-popularidad))
+  (bind ?moda (send ?libro get-de_moda))
+
+  ; Lógica para calcular el estatus en función de valoración, popularidad y moda
+  (if (and ?popularidad ?moda)
+    then
+    (if (>= ?valoracion 4)
+      then
+      (return "Bueno")
+      else
+      (if (>= ?valoracion 2)
+        then
+        (return "Normal")
+        else
+        (return "Malo")
+      )
+    )
+  else
+    (return "Malo")
+  )
+)
+
+(deffunction cumple-restricion-instancias (?instancia ?lista-instancias)
+  (member$ ?instancia ?lista-instancias)
+)
+
+
+(deffunction cumple-con-solucion (?libro ?solucion)
+  (bind ?cumple FALSE)
+  (bind ?genero (send ?libro get-genero_de_libro))
+  (bind ?tema (send ?libro get-tema_de_libro))
+  (bind ?autor (send ?libro get-autor_de_libro))
+  (bind ?nivel (send ?libro get-nivel_de_lector))
+  (bind ?estatus (calcular-estatus ?libro))
+
+  ;;quiero que retorne FALSE SI NO CUMPLE CON NADA!!
+  (if (or (cumple-restricion-instancias ?genero (send ?solucion get-Genero))
+          (cumple-restricion-instancias ?tema (send ?solucion get-Temas))
+          (cumple-restricion-instancias ?autor (send ?solucion get-Autores))
+          (eq ?nivel (send ?solucion get-NivelLector))
+          (eq ?estatus (send ?solucion get-EstatusLibro))
+          )
+    then
+    (bind ?cumple TRUE)
+  )
+  ?cumple
+)
+
+
+(defrule procesar-libros::crear-lista-de-libros
+  (not (lista-de-libros $?))
+  =>
+  (bind ?libros (find-all-instances ((?libro Libro)) TRUE))
+  (assert (lista-de-libros ?libros))
+  (printout t "regla 11"crlf)
+  (printout t ?libros crlf)
+)
+
+(deffunction print-recomendaciones ()
+  (printout t "Estas son las recomendaciones:" crlf)
+   (bind ?recomendaciones (find-all-instances ((?rec RecomendacionDetalle)) TRUE))
+    (bind ?i 1)
+    (foreach ?rec ?recomendaciones
+        (printout t ?i ". " (send ?rec get-libro) crlf)
+        (bind ?i (+ ?i 1))
+    )
+)
+
+
+(defrule procesar-libros::crear-puntuacion-recomendaciones
+  ?lista-de-libros <- (lista-de-libros $?libros)
+  ?solucion <- (SolucionAbstracta)
+  (test (> (length$ ?libros) 0))
+  =>
+  (printout t "Regla: Crear Puntuación y Recomendaciones" crlf)
+  (foreach ?libro ?libros
+    (if (cumple-con-solucion ?libro ?solucion)
+      then
+      (bind ?puntuacion 0)
+      (bind ?razon "")
+      
+      ;; Comprobar restricciones y asignar puntaje
+      (if (cumple-restricion-instancias(send ?libro get-genero_de_libro) (send ?solucion get-Genero))
+        then
+        (bind ?puntuacion (+ ?puntuacion 10))
+        (bind ?razon (str-cat ?razon " Cumple género."))
+      )
+
+      (if (cumple-restricion-instancias(send ?libro get-tema_de_libro) (send ?solucion get-Temas))
+        then
+        (bind ?puntuacion (+ ?puntuacion 10))
+        (bind ?razon (str-cat ?razon " Cumple tema."))
+      )
+
+      (if (cumple-restricion-instancias(send ?libro get-autor_de_libro) (send ?solucion get-Autores))
+        then
+        (bind ?puntuacion (+ ?puntuacion 10))
+        (bind ?razon (str-cat ?razon " Cumple autor."))
+      )
+
+      (if (eq (send ?libro get-nivel_de_lector) (send ?solucion get-NivelLector))
+        then
+        (bind ?puntuacion (+ ?puntuacion 5))
+        (bind ?razon (str-cat ?razon " Cumple nivel lector."))
+      )
+      ;;hay que calcular el estatus del libro! se calcula asi
+      (bind ?estatus (calcular-estatus ?libro))
+      (if (eq ?estatus (send ?solucion get-EstatusLibro))
+        then
+        (bind ?puntuacion (+ ?puntuacion 5))
+        (bind ?razon (str-cat ?razon " Cumple estatus."))
+      )
+  
+      ;; Repetir para otras restricciones (autor, tema, etc.)
+      
+      ;; Crear instancia de RecomendacionDetalle
+        (bind ?recomendacion (make-instance RecomendacionDetalle of RecomendacionDetalle))
+        (send ?recomendacion put-libro ?libro)
+        (send ?recomendacion put-puntuacion ?puntuacion)
+        (send ?recomendacion put-razon ?razon)
+    )
+  )
+)
+
+
+; (deftemplate MAIN::SolucionAbstracta
+;   (slot Dificultad
+;     (type SYMBOL)
+;     (allowed-symbols Facil Moderado Dificil)
+;   )
+;   (multislot Genero
+;     (type INSTANCE)
+;   )
+;   (multislot Temas
+;     (type INSTANCE)
+;   )
+;   (multislot Autores
+;     (type INSTANCE)
+;   )
+;   (slot EstatusLibro
+;     (type SYMBOL)
+;     (allowed-symbols Bueno Malo Normal)
+;   )
+;   (slot NivelLector
+;     (type SYMBOL)
+;     (allowed-symbols Principiante Intermedio Avanzado)
+;   )
+;   (slot TratadoCopiaDatos
+;     (type SYMBOL)
+;     (default FALSE)
+;   )  
+;   (slot TratadoEstatus
+;     (type SYMBOL)
+;     (default FALSE)
+;   )
+;   (slot TratadoNivelLector
+;     (type SYMBOL)
+;     (default FALSE)
+;   )    
+; )
+
+
 
 ;;ESTADO ACTUAL (BEST CASE SUPONEMOS QUE FUNCIONA TODO)
 ;; TENEMOS 3 MODULOS
@@ -745,29 +925,7 @@
     ;; al final printeamos los 3 con mas puntos y sus respectivos razones
     ;; en defecto, si no hay 3 se completa con libros con mayores ventas
     
-;;ESTADO ACTUAL (BEST CASE SUPONEMOS QUE FUNCIONA TODO)
-;; TENEMOS 3 MODULOS
-;; 1 --> ENTRADA DATOS LECTOR (PREGUNTAS) PROBLEMA CONCRETO
-;; 2 --> RECOGER DATOS Y PASARLOS A PROBLEMA ABSTRACTO
-;; 3 --> A PARTIR DE PROBLEMA ABSTRACTO GENERAR SOLUCION ABSTRACTA
 
-;; AHORA HAY QUE HACER QUE EL SISTEMA RECOMIENDE LOS LIBROS QUE CUMPLAN CON LA SOLUCION ABSTRACTA
 
-;;LO HAREMOS EN DOS PASOS 
-;; 1 . DESCARTE DE LIBROS QUE NO CUMPLAN NADA
-;; 2 . ORDENAR LOS LIBROS QUE CUMPLAN POR PUNTUACION Y CADA VEZ QUE AUMENTEMOS DE PUNTOS 
-    ;; CADA VEZ QUE AUMENTEMOS DE PUNTOS A UN LIBRO X --> hay que guardar en algun lado que hemos aumentado de puntos a ese libro por y razon
-    ;; pueden haber muchas razones por la cual hemos uamentado los puntos
-    ;; al final printeamos los 3 con mas puntos y sus respectivos razones
-    ;; en defecto, si no hay 3 se completa con libros con mayores ventas
-    
-;; AHORA HAY QUE HACER QUE EL SISTEMA RECOMIENDE LOS LIBROS QUE CUMPLAN CON LA SOLUCION ABSTRACTA
 
-;;LO HAREMOS EN DOS PASOS 
-;; 1 . DESCARTE DE LIBROS QUE NO CUMPLAN NADA
-;; 2 . ORDENAR LOS LIBROS QUE CUMPLAN POR PUNTUACION Y CADA VEZ QUE AUMENTEMOS DE PUNTOS 
-    ;; CADA VEZ QUE AUMENTEMOS DE PUNTOS A UN LIBRO X --> hay que guardar en algun lado que hemos aumentado de puntos a ese libro por y razon
-    ;; pueden haber muchas razones por la cual hemos uamentado los puntos
-    ;; al final printeamos los 3 con mas puntos y sus respectivos razones
-    ;; en defecto, si no hay 3 se completa con libros con mayores ventas
-    
+;; recomendacion (LIBROS + PUNTUAJE+MOTIVO)  1 --> *  recomendacion_detallada (libro + razones) l

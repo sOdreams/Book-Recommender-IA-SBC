@@ -348,7 +348,7 @@
     (slot complejidad
         (type STRING)
         (create-accessor read-write))
-    (multislot de_moda
+    (slot de_moda
         (type SYMBOL)
         (create-accessor read-write))
     (slot disponibilidad
@@ -369,25 +369,24 @@
     (slot ventas
         (type INTEGER)
         (create-accessor read-write))
+    (slot NivelLector
+        (type SYMBOL)
+        (allowed-symbols Principiante Intermedio Avanzado)
+    )
 )
 
-(defclass RecomendacionDetalle
+(defclass RecomendacionDetalle ;;--> 
     (is-a USER)
     (role concrete)
     (pattern-match reactive)
     (slot libro
         (type INSTANCE)
         (create-accessor read-write))
-    (slot razon
+    (multislot razon
         (type STRING)
+        (create-accessor read-write))
+    (slot puntaje
+        (type INTEGER)
         (create-accessor read-write))
 )
 
-(defclass Recomendacion
-    (is-a USER)
-    (role concrete)
-    (pattern-match reactive)
-    (multislot detalles
-        (type INSTANCE)
-        (create-accessor read-write))
-)
