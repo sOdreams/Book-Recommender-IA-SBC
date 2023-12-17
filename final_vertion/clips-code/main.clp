@@ -136,12 +136,15 @@
 
 (deffunction imprimir-recomendaciones ()
   (printout t "Lista de recomendaciones:" crlf)
-  (do-for-all-instances ((?recomendacion RecomendacionDetalle))
-    (printout t "ID: " (instance-name ?recomendacion) crlf)
-    (printout t "   Libro: " (send ?recomendacion get-libro) crlf)
-    (printout t "   Puntuacion: " (send ?recomendacion get-puntaje) crlf)
-    (printout t "   Razon: " (send ?recomendacion get-razon) crlf)
-    (printout t crlf)
+
+  (bind ?recomendaciones (find-all-instances ((?recomendacion RecomendacionDetalle)) TRUE)) 
+
+  (loop-for-count (?i (min 3 (length$ ?recomendaciones)))
+    (bind ?currentRecomendacion (nth$ ?i ?recomendaciones))
+    (printout t "ID: " (instance-name ?currentRecomendacion) crlf)
+    (printout t "   Libro: " (send ?currentRecomendacion get-libro) crlf)
+    (printout t "   Puntuacion: " (send ?currentRecomendacion get-puntaje) crlf)
+    (printout t "   Razon: " (send ?currentRecomendacion get-razon) crlf)
   )
   (printout t "Fin de la lista de recomendaciones." crlf)
 )
@@ -265,17 +268,17 @@
     then
     (if (>= ?valoracion 4)
       then
-      (return "Bueno")
+      (return Bueno)
       else
       (if (>= ?valoracion 2)
         then
-        (return "Normal")
+        (return Normal)
         else
-        (return "Malo")
+        (return Malo)
       )
     )
   else
-    (return "Malo")
+    (return Malo)
   )
 )
 
@@ -284,18 +287,21 @@
   (member$ ?instancia ?lista-instancias)
 )
 
-(deffunction cumple-con-solucion (?libro ?generos ?temas ?autores ?nivel2 ?estatus2)
+(deffunction cumple-con-solucion (?libro ?generos ?temas ?autores ?nivel2 ?estatus2 ?idiomas)
   (bind ?cumple FALSE)
   (bind ?genero (send ?libro get-genero_de_libro))
   (bind ?tema (send ?libro get-tema_de_libro))
   (bind ?autor (send ?libro get-escrito_por))
   (bind ?nivel (send ?libro get-NivelLector))
+  (bind ?idiomaLibro (send ?libro get-idioma_de_libro))
   (bind ?estatus (calcular-estatus ?libro))
-  
+  ; (printout t "Estatus:"?estatus)
+  ; (printout t "Estatus2:"?estatus2)
   ;;quiero que retorne FALSE SI NO CUMPLE CON NADA!!
   (if (or (cumple-restricion-instancias ?genero ?generos)
           (cumple-restricion-instancias ?tema ?temas)
           (cumple-restricion-instancias ?autor ?autores)
+          (cumple-restricion-instancias ?idiomaLibro ?idiomas)
           (eq ?nivel ?nivel2)
           (eq ?estatus ?estatus2)
           )
@@ -486,24 +492,23 @@
     =>
     (bind ?entradaNoValida "NO")
     (while (eq ?entradaNoValida "NO")
-        (bind ?numAutoresPreferidos (pregunta_respuesta_numerica "Indica el numero de autores preferidos del que te acuerdas el nombre."))
-        (bind ?autores_pref (create$))
-          (if (> ?numAutoresPreferidos 0)
-          then 
-          (bind ?entradaNoValida "SI")
-          (loop-for-count (?i 1 ?numAutoresPreferidos) do
-              (printout t "Indica el autor número: " ?i " de tu lista de autores preferidos:" crlf)
-              (bind ?nombre (readline))
-                  (bind ?autor (find-all-instances ((?autor Autor)) (eq ?autor:nombre ?nombre)))
-                  (bind ?autores_pref (insert$ ?autores_pref 1 ?autor))
+      (bind ?numAutoresPreferidos (pregunta_respuesta_numerica "Indica el numero de autores preferidos del que te acuerdas el nombre."))
+      (bind ?autores_pref (create$))
+        (if (> ?numAutoresPreferidos 0)
+        then 
+        (bind ?entradaNoValida "SI")
+        (loop-for-count (?i 1 ?numAutoresPreferidos) do
+            (printout t "Indica el autor número: " ?i " de tu lista de autores preferidos:" crlf)
+            (bind ?nombre (readline))
+                (bind ?autor (find-all-instances ((?autor Autor)) (eq ?autor:nombre ?nombre)))
+                (bind ?autores_pref (insert$ ?autores_pref 1 ?autor))
+        )
+        (send ?lector put-autores_preferidos ?autores_pref)
+        else 
+          (if (= ?numAutoresPreferidos 0) 
+            then  (bind ?entradaNoValida "SI")
           )
-          (send ?lector put-autores_preferidos ?autores_pref)
-          else 
-            (if (= ?numAutoresPreferidos 0) 
-              then  (bind ?entradaNoValida "SI")
-            )
-          )
-
+        )
     )
     (printout t (send ?lector get-autores_preferidos)crlf)
 )
@@ -554,7 +559,7 @@
 (defrule entrada_de_informacion_lector::establecer-interes-libros-complejos "Establece si el lector le interesa libros con cierta complejidad."
     ?lector <- (object (is-a Lector))
     =>
-    (bind ?respuesta (pregunta_si_o_no "Te interesa leer libros con cierta complejidad"))
+    (bind ?respuesta (pregunta_si_o_no "¿Te interesa leer libros con cierta complejidad?"))
     
     (if (eq ?respuesta TRUE)
         then 
@@ -568,7 +573,7 @@
 (defrule entrada_de_informacion_lector::establecer-interes-libros-extensos "Establece si el lector le interesa libros extensos."
     ?lector <- (object (is-a Lector))
     =>
-    (bind ?respuesta (pregunta_si_o_no "Te interesa los libros extensos"))
+    (bind ?respuesta (pregunta_si_o_no "¿Te interesa los libros extensos?"))
     
     (if (eq ?respuesta TRUE)
         then 
@@ -583,7 +588,7 @@
 (defrule entrada_de_informacion_lector::establecer-formato-libros "Establece el formato que un lector prefiere"
     ?lector <- (object (is-a Lector))
     =>
-    (bind ?respuesta (pregunta_si_o_no "Prefieres libros en papel?"))
+    (bind ?respuesta (pregunta_si_o_no "¿Prefieres libros en papel?"))
     
     (if (eq ?respuesta TRUE)
         then 
@@ -675,6 +680,20 @@
     (printout t (send ?lector get-tiempo_semanal_lectura)crlf)
 )
 
+(defrule entrada_de_informacion_lector::establecer-actividad-social "Establece si el lector participa en actividades que tengan relacion con lectura de libros"
+    ?lector <- (object (is-a Lector))
+    =>
+    (bind ?respuesta (pregunta_si_o_no "¿Participas en clubes de lectura o actividades que tengan relación con libros?"))
+    (if (eq ?respuesta TRUE)
+        then 
+        (send ?lector put-actividad_de_lectura_social TRUE)
+        else 
+        (send ?lector put-actividad_de_lectura_social FALSE)
+    )
+    (printout t (send ?lector get-actividad_de_lectura_social) crlf)
+)
+
+
 (defrule entrada_de_informacion_lector::establecer-lugar-lectura "Establece el lugar donde el lector suele realizar la lectura"
     ?lector <- (object (is-a Lector))
     =>
@@ -686,7 +705,7 @@
 (defrule entrada_de_informacion_lector::cambiar_a_procesado_datos "Regla para cambiar a procesado de datos"
     =>
     (focus procesado-datos)
-    (printout t "Cambiando a procesado de datos" crlf)
+    (printout t "Cambiando a procesado de datos..." crlf)
 )
 
 
@@ -700,28 +719,25 @@
                       (nombre ?nombre))
   (not (ProblemaAbstracto))
   =>
-  (printout t "Calculando Nivel Personal para el lector " ?nombre crlf)
+  (printout t "Calculando Nivel Personal..."crlf)
 
   (bind ?numIdiomas (length$ ?idiomas))
-  (printout t ?numIdiomas)
+  ;(printout t ?numIdiomas)
   (bind ?nivel Bajo)
   
   ; Combinaciones para "Alto" Nivel
-  (if (>= ?numIdiomas 3)
+  (if (and (> ?numIdiomas 3) (or (> ?tiempo 15) (>= ?edad 30)))
     then
     (bind ?nivel Alto)
   else
     ; Combinaciones para "Medio" Nivel
-    (if (and (<= ?tiempo 15) (= ?numIdiomas 1) (>= ?edad 60))
+    (if (and (= ?numIdiomas 2) (or (> ?tiempo 7) (>= ?edad 25)))
       then
       (bind ?nivel Medio)
-      else (if (and (<= ?tiempo 10) (>= ?numIdiomas 2) (> ?edad 40))
-             then
-             (bind ?nivel Medio)
-      )
     )
   )
-  ;
+  (printout t "El nivel Personal es:"?nivel crlf)
+
   (assert (ProblemaAbstracto (NivelPersonal ?nivel)))
 )
 
@@ -736,14 +752,15 @@
   (test (eq ?nivelLiterario NULL))
   =>
   (bind ?nivel Bajo)
-  (printout t "regla 2"crlf)
+  (printout t "Calculando Nivel Literario..."crlf)
+
   ; Combinaciones para "Alto" Nivel
-  (if (and (>= ?numLibrosLeidos 20) (eq ?complejidad TRUE) (eq ?extension true))
+  (if (and (>= ?numLibrosLeidos 20) (eq ?complejidad TRUE) (or (eq ?extension TRUE) (eq ?actividadSocial TRUE)))
     then
     (bind ?nivel Alto)
   else
     ; Combinaciones para "Medio" Nivel
-    (if (and (>= ?numLibrosLeidos 10) (eq ?actividadSocial true))
+    (if (and (>= ?numLibrosLeidos 10) (or (eq ?extension TRUE) (eq ?actividadSocial TRUE)))
       then
       (bind ?nivel Medio)
     else
@@ -751,7 +768,7 @@
       (bind ?nivel Bajo)
     )
   )
-  
+  (printout t "El nivel Literario es:"?nivel crlf)
   (modify ?problema
     (NivelLiterario ?nivel)
   )
@@ -766,17 +783,12 @@
   (test (eq ?tratado FALSE))
   =>
   ;retorna un subconjcto de 3 o menos instancias de la lista de los generos autores y temas del lector concreto
-  (printout t "regla 3"crlf)
-
-  (bind ?autoresSeleccionados (subseq$ ?autores 0 3))
-  (bind ?generosSeleccionados (subseq$ ?generos 0 3))
-  (bind ?temasSeleccionados (subseq$ ?temas 0 3))
-
+  (printout t "Procesando datos (autores,generos,temas)..."crlf)
   ; Copiar AutoresPreferidos, GenerosPreferidos y TemasPreferidos del Lector a ProblemaAbstracto
   (modify ?problema
-    (AutoresInteres $?autoresSeleccionados)
-    (GenerosInteres $?generosSeleccionados)
-    (TemasInteres $?temasSeleccionados)
+    (AutoresInteres $?autores)
+    (GenerosInteres $?generos)
+    (TemasInteres $?temas)
     (TratadoCopiaDatos TRUE)
   )
 )
@@ -791,13 +803,13 @@
   (test (eq ?tratado FALSE))
   =>
   (bind ?estatus Normal) 
-  (printout t "regla 4"crlf)
+  (printout t "Calculando caracteristicas de libros..."crlf)
 
-  (if (and (eq ?valoracion true) (eq ?popularidad true) (eq ?moda true))
+  (if (and (eq ?valoracion TRUE) (or (eq ?popularidad TRUE) (eq ?moda TRUE)))
     then
     (bind ?estatus Bueno)
   else
-    (if (or (eq ?valoracion false) (eq ?popularidad false) (eq ?moda false))
+    (if (and (eq ?valoracion FALSE) (eq ?popularidad FALSE) (eq ?moda FALSE))
       then
       (bind ?estatus Malo)
   ))
@@ -805,6 +817,8 @@
     (EstatusLibro ?estatus)
     (TratadoEstatus TRUE)
   )
+  (printout t "Los libros tienen la siguiente caracteristcas: " ?estatus crlf)
+
 )
 
 (defrule procesado-datos::Cambiar_a_generar_solucion "Regla para cambiar a generar solucion"
@@ -812,7 +826,7 @@
     ?problema <- (ProblemaAbstracto)
     =>
     (focus generar-solucion)
-  (printout t "regla 5"crlf)
+  (printout t "Cambiando a generar solución abstracta..."crlf)
 
 )
 
@@ -822,11 +836,16 @@
   ?problema <- (ProblemaAbstracto
                  (NivelPersonal ?nivelPersonal)
                  (NivelLiterario ?nivelLiterario))
+  ?lector <- (object (is-a Lector)(lugar_de_lectura ?lugar))
   =>
+  (bind ?contexto SILENCIOSO)
+  (if (eq lugar_de_lectura Metro Bus Avión Calle Parque)
+    then (bind ?contexto RUIDOSO)
+  )
   ; Determinar Dificultad en función de Nivel Personal y Nivel Literario
+  (printout t "Calculando la dificultad de análisis y compresión del lector hacía un libro..."crlf)
   (bind ?dificultad Moderado) ; Valor por defecto
-  (printout t "regla 6"crlf)
-  (if (or (eq ?nivelPersonal Bajo) (eq ?nivelLiterario Bajo))
+  (if (or (eq ?nivelPersonal Bajo) (eq ?nivelLiterario Bajo) (eq ?contexto RUIDOSO))
     then
     (bind ?dificultad Facil)
     else
@@ -841,21 +860,20 @@
       (Dificultad ?dificultad)
     )
   )
-  (printout t "regla 6 final" ?dificultad crlf)
+  (printout t "El lector necesita libros con la siguiente dificultad: " ?dificultad crlf) 
 )
 
 (defrule generar-solucion::CopiarGenerosYTemasYAutores
   ?problema <- (ProblemaAbstracto
-                 (GenerosInteres $?generosInteres)
-                 (TemasInteres $?temasInteres)
-                 (AutoresInteres $?autoresInteres))
+                  (GenerosInteres $?generosInteres)
+                  (TemasInteres $?temasInteres)
+                  (AutoresInteres $?autoresInteres))
   ?solucion <- (SolucionAbstracta (TratadoCopiaDatos ?tratado))
   (test (eq ?tratado FALSE))
   =>
-  (printout t "regla 7"crlf)
-
-  ; Copiar GenerosInteres y TemasInteres del ProblemaAbstracto a la SolucionAbstracta
-  (modify ?solucion
+  (printout t "Procesando datos (autores,generos,temas) del Problema Abstracto..."crlf)
+    ; Copiar GenerosInteres y TemasInteres del ProblemaAbstracto a la SolucionAbstracta
+    (modify ?solucion
     (Genero $?generosInteres)
     (Temas $?temasInteres)
     (Autores $?autoresInteres)
@@ -870,7 +888,7 @@
   ?solucion <- (SolucionAbstracta (TratadoEstatus ?tratado))
   (test (eq ?tratado FALSE))
   =>
-  (printout t "regla 8"crlf)
+  (printout t "Procesando caracteristicas de libros de Problemas Abstracto..."crlf)
 
   ; Copiar el valor de EstatusLibro del ProblemaAbstracto a la SolucionAbstracta
   (modify ?solucion
@@ -885,7 +903,7 @@
   ?solucion <- (SolucionAbstracta (TratadoNivelLector ?tratado))
   (test (eq ?tratado FALSE))
   =>
-  (printout t "regla 9"crlf)
+  (printout t "Calculando nivel de del lector..."crlf)
  
   (if (eq ?nivelPersonal Bajo)
     then
@@ -913,7 +931,7 @@
     ?solucion <- (SolucionAbstracta)
     =>
     (focus procesar-libros)
-  (printout t "regla 10"crlf)
+  (printout t "Cambiando al proceso del refinamiento de la solución..."crlf)
 
 )
 
@@ -924,39 +942,68 @@
   =>
   (bind ?libros (find-all-instances ((?libro Libro)) TRUE))
   (assert (lista-de-libros ?libros))
-  (printout t "regla 11"crlf)
+  (printout t "Gestionando Instancias de libros..."crlf)
   (printout t ?libros crlf)
+)
+
+(deffunction bubble-sort (?libros)
+  (bind ?n (length$ ?libros))
+  (loop-for-count (?i (- ?n 1))
+    (loop-for-count (?j (- ?n ?i 1))
+      (bind ?libroA (nth$ ?j ?libros))
+      (bind ?libroB (nth$ (+ ?j 1) ?libros))
+      (if (< (send ?libroA get-ventas) (send ?libroB get-ventas))
+        then
+        (bind ?temp ?libroA)
+        (bind ?libros (replace$ ?libros ?j ?j ?libroB))
+        (bind ?libros (replace$ ?libros (+ ?j 1) (+ ?j 1) ?temp))
+      )
+    )
+  )
+  (printout t  ?libros)
+  ?libros
 )
 
 (defrule procesar-libros::crear-puntuacion-recomendaciones
   ?lista-de-libros <- (lista-de-libros $?libros)
   ?solucion <- (SolucionAbstracta (Genero $?generos) (Temas $?temas) (Autores $?autores) (NivelLector ?nivel) (EstatusLibro ?estatus2))
+  
+  ?lector <- (object (is-a Lector)
+               (lee_en_idiomas $?idiomas))
+
   (test (> (length$ ?libros) 0))
   =>
-  (printout t "Regla: Crear Puntuación y Recomendaciones" crlf)
+  (printout t "Refinando solución..." crlf)
+  (bind ?numLibrosRecomendados 0)
   (foreach ?libro ?libros
-    (if (cumple-con-solucion ?libro ?generos ?temas ?autores ?nivel ?estatus2)
+    (if (cumple-con-solucion ?libro ?generos ?temas ?autores ?nivel ?estatus2 ?idiomas)
       then
       (bind ?puntuacion 0)
       (bind ?razon "")
       
       ;; Comprobar restricciones y asignar puntaje
-      (if (cumple-restricion-instancias(send ?libro get-genero_de_libro) ?generos)
+      (if (cumple-restricion-instancias (send ?libro get-genero_de_libro) ?generos)
         then
         (bind ?puntuacion (+ ?puntuacion 10))
         (bind ?razon (str-cat ?razon "Cumple género."))
       )
 
-      (if (cumple-restricion-instancias(send ?libro get-tema_de_libro) ?temas)
+      (if (cumple-restricion-instancias (send ?libro get-tema_de_libro) ?temas)
         then
         (bind ?puntuacion (+ ?puntuacion 10))
         (bind ?razon (str-cat ?razon "Cumple tema."))
       ) 
 
-      (if (cumple-restricion-instancias(send ?libro get-escrito_por) ?autores)
+      (if (cumple-restricion-instancias (send ?libro get-escrito_por) ?autores)
         then
         (bind ?puntuacion (+ ?puntuacion 10))
         (bind ?razon (str-cat ?razon "Cumple autor."))
+      )
+
+      (if (cumple-restricion-instancias (send ?libro get-idioma_de_libro) ?idiomas)
+        then
+        (bind ?puntuacion (+ ?puntuacion 10))
+        (bind ?razon (str-cat ?razon "Cumple con idioma."))
       )
 
       (if (eq (send ?libro get-NivelLector) ?nivel)
@@ -966,26 +1013,33 @@
       )
       ;;hay que calcular el estatus del libro! se calcula asi
       (bind ?estatus (calcular-estatus ?libro))
+      ; (printout t "Debug: estatus = " ?estatus " estatus2 = " ?estatus2 crlf)
       (if (eq ?estatus ?estatus2)
         then
+        ; (printout "Estoy Aqui")
         (bind ?puntuacion (+ ?puntuacion 5))
-        (bind ?razon (str-cat ?razon "Cumple estatus."))
+        (bind ?razon (str-cat ?razon "Cumple con filtros de Moda, Valoracion, Popularidad."))
       )
-  
-      
-      ;; Crear instancia de RecomendacionDetalle
-        (bind ?recomendacion (make-instance recomen of RecomendacionDetalle))
+        (bind ?recomendacion (make-instance of RecomendacionDetalle))
         (send ?recomendacion put-libro ?libro)
         (send ?recomendacion put-puntaje ?puntuacion)
         (send ?recomendacion put-razon ?razon)
+        (bind ?numLibrosRecomendados (+ ?numLibrosRecomendados 1))
     )
+  )
+
+  (bind ?librosOrdenados (bubble-sort ?libros))
+  
+  (loop-for-count (?i (- 3 ?numLibrosRecomendados))
+    (bind ?libro (nth$ ?i ?librosOrdenados))
+
+    (bind ?recomendacion (make-instance of RecomendacionDetalle))
+    (send ?recomendacion put-libro ?libro)
+    (send ?recomendacion put-puntaje 0)
+    (send ?recomendacion put-razon "Mejor Venta.")
   )
   (imprimir-recomendaciones)
 )
-
-(defrule proce)
-
-
 
 
 ;;ESTADO ACTUAL (BEST CASE SUPONEMOS QUE FUNCIONA TODO)
