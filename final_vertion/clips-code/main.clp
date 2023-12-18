@@ -169,13 +169,19 @@
   (bind ?recomendaciones (find-all-instances ((?recomendacion RecomendacionDetalle)) TRUE)) 
   (bind ?recomendaciones (bubble-sort ?recomendaciones FALSE))
   (loop-for-count (?i (min 3 (length$ ?recomendaciones)))
+    (printout t crlf)
+    (printout t "----------------------------------------------------" crlf)
     (bind ?currentRecomendacion (nth$ ?i ?recomendaciones))
-    (printout t "ID: " (instance-name ?currentRecomendacion) crlf)
-    (printout t "Libro: " (send ?currentRecomendacion get-libro) crlf)
     (bind ?libro (send ?currentRecomendacion get-libro))
     (printout t "Titulo: " (send ?libro get-titulo) crlf)
     (printout t "Puntuacion: " (send ?currentRecomendacion get-puntaje) crlf)
-    (printout t "Razon: " (send ?currentRecomendacion get-razon) crlf)
+    (bind $?razones (send ?currentRecomendacion get-razon))
+    (printout t "Razon: " crlf)
+    (loop-for-count (?j (length$ ?razones))
+      (bind ?razon (nth$ ?j ?razones))
+      (printout t ?j "."?razon crlf)
+    )
+    (printout t "----------------------------------------------------" crlf)
   )
   (printout t "Fin de la lista de recomendaciones." crlf)
 )
@@ -318,7 +324,7 @@
   (member$ ?instancia ?lista-instancias)
 )
 
-(deffunction cumple-con-solucion (?libro ?generos ?temas ?autores ?nivel2 ?estatus2 ?idiomas)
+(deffunction cumple-con-solucion (?libro ?generos ?temas ?autores ?nivel2 ?estatus2 ?idiomas ?generosSimilares ?temasSimilares ?autoresSimilares ?idiomasSimilares)
   (bind ?cumple FALSE)
   (bind ?genero (send ?libro get-genero_de_libro))
   (bind ?tema (send ?libro get-tema_de_libro))
@@ -333,6 +339,10 @@
           (cumple-restricion-instancias ?tema ?temas)
           (cumple-restricion-instancias ?autor ?autores)
           (cumple-restricion-instancias ?idiomaLibro ?idiomas)
+          (cumple-restricion-instancias ?idiomaLibro ?idiomasSimilares)
+          (cumple-restricion-instancias ?genero ?generosSimilares)
+          (cumple-restricion-instancias ?autor ?autoresSimilares)
+          (cumple-restricion-instancias ?tema ?temasSimilares)
           (eq ?nivel ?nivel2)
           (eq ?estatus ?estatus2)
           )
@@ -615,14 +625,10 @@
 (defrule entrada_de_informacion_lector::establecer-formato-libros "Establece el formato que un lector prefiere"
     ?lector <- (object (is-a Lector))
     =>
-    (bind ?respuesta (pregunta_si_o_no "¿Prefieres libros en papel?"))
+    (bind ?respuesta (pregunta_opciones_una_respuesta "¿En qué formatos prefieres los libros?" Papel Digital Ambos))
+
+    (send ?lector put-preferencia_papel ?respuesta)
     
-    (if (eq ?respuesta TRUE)
-        then 
-        (send ?lector put-preferencia_papel TRUE)
-        else 
-        (send ?lector put-preferencia_papel FALSE)
-    )
     ; (printout t (send ?lector get-preferencia_papel) crlf)
 )
 
@@ -963,54 +969,90 @@
   (bind ?temasSimilares (create$))
   (bind ?idiomasSimilares (create$))
   (bind ?librosSimilares (send ?lector get-libros_preferidos))
+  (bind ?papel (send ?lector get-preferencia_papel))
+  
   (loop-for-count (?i (length$ ?librosSimilares))
     (bind ?libroActual (nth$ ?i ?librosSimilares))
     (bind ?generosLibroActual (send ?libroActual get-genero_de_libro))
     (bind ?autoresLibroActual (send ?libroActual get-escrito_por))
     (bind ?temasLibroActual (send ?libroActual get-tema_de_libro))
     (bind ?idiomasLibroActual (send ?libroActual get-idioma_de_libro))
+
     (bind ?generosSimilares (insert$ ?generosSimilares 1 ?generosLibroActual))
     (bind ?autoresSimilares (insert$ ?autoresSimilares 1 ?autoresLibroActual))
     (bind ?temasSimilares (insert$ ?temasSimilares 1 ?temasLibroActual))
     (bind ?idiomasSimilares (insert$ ?idiomasSimilares 1 ?idiomasLibroActual))
   )
-
+  ; (printout t "distopia y ciencia tiene que imprimir, y imprime:" ?generosSimilares crlf)
   (foreach ?libro ?libros
-    (if (cumple-con-solucion ?libro ?generos ?temas ?autores ?nivel ?estatus2 ?idiomas)
+    (if (cumple-con-solucion ?libro ?generos ?temas ?autores ?nivel ?estatus2 ?idiomas ?generosSimilares ?temasSimilares ?autoresSimilares ?idiomasSimilares)
       then
       (bind ?puntuacion 0)
-      (bind ?razon "")
-      
-      ;; Comprobar restricciones y asignar puntaje
+      (bind ?razones (create$))  
       (if (cumple-restricion-instancias (send ?libro get-genero_de_libro) ?generos)
         then
+        (bind ?puntuacion (+ ?puntuacion 15))
+        (bind ?razon  "Cumple género.")
+        (bind ?razones (insert$ ?razones 1 ?razon))
+      )
+
+      (if (cumple-restricion-instancias (send ?libro get-idioma_de_libro) ?idiomas)
+        then
+        (bind ?puntuacion (+ ?puntuacion 15))
+        (bind ?razon  "Cumple con idioma.")
+        (bind ?razones (insert$ ?razones 1 ?razon))
+      )
+
+      (if (cumple-restricion-instancias (send ?libro get-escrito_por) ?autores)
+        then
         (bind ?puntuacion (+ ?puntuacion 10))
-        (bind ?razon (str-cat ?razon "Cumple género."))
+        (bind ?razon  "Cumple autor.")
+        (bind ?razones (insert$ ?razones 1 ?razon))
       )
 
       (if (cumple-restricion-instancias (send ?libro get-tema_de_libro) ?temas)
         then
         (bind ?puntuacion (+ ?puntuacion 10))
-        (bind ?razon (str-cat ?razon "Cumple tema."))
+        (bind ?razon  "Cumple tema.")
+        (bind ?razones (insert$ ?razones 1 ?razon))
       ) 
 
-      (if (cumple-restricion-instancias (send ?libro get-escrito_por) ?autores)
+      (if (cumple-restricion-instancias (send ?libro get-genero_de_libro) ?generosSimilares)
         then
-        (bind ?puntuacion (+ ?puntuacion 10))
-        (bind ?razon (str-cat ?razon "Cumple autor."))
+        (bind ?puntuacion (+ ?puntuacion 7))
+        (bind ?razon  "Cumple con un género similar a uno de los libros leídos.")
+        (bind ?razones (insert$ ?razones 1 ?razon))
       )
 
-      (if (cumple-restricion-instancias (send ?libro get-idioma_de_libro) ?idiomas)
+      (if (cumple-restricion-instancias (send ?libro get-idioma_de_libro) ?idiomasSimilares)
         then
-        (bind ?puntuacion (+ ?puntuacion 10))
-        (bind ?razon (str-cat ?razon "Cumple con idioma."))
+        (bind ?puntuacion (+ ?puntuacion 7))
+        (bind ?razon  "Cumple con idioma similar a uno de los libros leídos.")
+        (bind ?razones (insert$ ?razones 1 ?razon))
       )
+
+      (if (cumple-restricion-instancias (send ?libro get-escrito_por) ?autoresSimilares)
+        then
+        then
+        (bind ?puntuacion (+ ?puntuacion 7))
+        (bind ?razon  "Cumple autor similar a uno de los libros leídos.")
+        (bind ?razones (insert$ ?razones 1 ?razon))
+      )
+
+      (if (cumple-restricion-instancias (send ?libro get-tema_de_libro) ?temasSimilares)
+        then
+        (bind ?puntuacion (+ ?puntuacion 7))
+        (bind ?razon  "Cumple tema similar a uno de los libros leídos.")
+        (bind ?razones (insert$ ?razones 1 ?razon))
+      ) 
+
       ; (printout t "Debug: nivel lector = " ?nivel crlf)
       ; (printout t "Debug: nivel lector libro = " (send ?libro get-NivelLector) crlf)
       (if (eq (send ?libro get-NivelLector) ?nivel)
         then
         (bind ?puntuacion (+ ?puntuacion 5))
-        (bind ?razon (str-cat ?razon "Cumple nivel lector."))
+        (bind ?razon  "Cumple nivel lector.")
+        (bind ?razones (insert$ ?razones 1 ?razon))
       )
       ;;hay que calcular el estatus del libro! se calcula asi
       (bind ?estatus (calcular-estatus ?libro))
@@ -1019,12 +1061,21 @@
         then
         ; (printout "Estoy Aqui")
         (bind ?puntuacion (+ ?puntuacion 5))
-        (bind ?razon (str-cat ?razon "Cumple con filtros de Moda, Valoracion, Popularidad."))
+        (bind ?razon  "Cumple con filtros de Moda, Valoracion, Popularidad.")
+        (bind ?razones (insert$ ?razones 1 ?razon))
       )
+
+      (if (eq (send ?libro get-disponibilidad) ?papel)
+        then
+        (bind ?puntuacion (+ ?puntuacion 4))
+        (bind ?razon "Cumple el formato del libro.")
+        (bind ?razones (insert$ ?razones 1 ?razon))
+      )
+
         (bind ?recomendacion (make-instance of RecomendacionDetalle))
         (send ?recomendacion put-libro ?libro)
         (send ?recomendacion put-puntaje ?puntuacion)
-        (send ?recomendacion put-razon ?razon)
+        (send ?recomendacion put-razon ?razones)
         (bind ?numLibrosRecomendados (+ ?numLibrosRecomendados 1))
     )
   )
@@ -1036,7 +1087,9 @@
     (bind ?recomendacion (make-instance of RecomendacionDetalle))
     (send ?recomendacion put-libro ?libro)
     (send ?recomendacion put-puntaje 0)
-    (send ?recomendacion put-razon "Mejor Venta.")
+    (bind ?razones (send ?recomendacion get-razon))
+    (bind ?razon (insert$ ?razones 1 "Mejor Venta."))
+    (send ?recomendacion put-razon ?razon)
   )
   (imprimir-recomendaciones)
 )
