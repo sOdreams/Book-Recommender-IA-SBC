@@ -358,7 +358,7 @@
         (type SYMBOL)
         (create-accessor read-write))
     (slot disponibilidad
-        (type STRING)
+        (type SYMBOL)
         (create-accessor read-write))
     (slot numero_paginas
         (type INTEGER)
@@ -385,7 +385,7 @@
     )
 )
 
-(defclass RecomendacionDetalle ;;--> 
+(defclass RecomendacionDetalle
     (is-a USER)
     (role concrete)
     (pattern-match reactive)
