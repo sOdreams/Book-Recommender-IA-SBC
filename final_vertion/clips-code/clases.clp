@@ -88,6 +88,12 @@
     (pattern-match reactive)
 )
 
+(defclass Contemporanea
+    (is-a Epoca)
+    (role concrete)
+    (pattern-match reactive)
+)
+
 (defclass Persona
     (is-a USER)
     (role concrete)

@@ -545,15 +545,15 @@
         (bind ?epocas-names (insert$ ?epocas-names 1 ?nombre))
     )
     (bind $?epocas_preferidos (pregunta_opciones_multi_respuesta "Selecciona los índices de las épocas a las que desearías que pertenecieran los libros." ?epocas-names))
-    ;(printout t "Estos son los temas que devuelve la pregunta:"?temas_preferidos crlf) 
+    ;(printout t "Estos son los temas que devuelve la pregunta:"?epocas_preferidos crlf) 
     (bind ?epocas-matching-preferidos (create$))
     (loop-for-count (?i 1 (length$ ?epocas_preferidos)) do
         (bind ?nombre (nth$ ?i ?epocas_preferidos))
-        (bind ?epocas (find-all-instances ((?tema Tema)) (eq ?tema:nombre ?nombre)))
+        (bind ?epocas (find-all-instances ((?epoca Epoca)) (eq ?epoca:nombre ?nombre)))
         (bind ?epocas-matching-preferidos (insert$ ?epocas-matching-preferidos 1 ?epocas))
     )
     (send ?lector put-epocas_preferidos ?epocas-matching-preferidos)
-    (printout t (send ?lector get-temas_preferidos)crlf)
+    (printout t (send ?lector get-epocas_preferidos)crlf)
 )
 
 (defrule entrada_de_informacion_lector::establecer-interes-libros-complejos "Establece si el lector le interesa libros con cierta complejidad."
@@ -1058,7 +1058,4 @@
     ;; al final printeamos los 3 con mas puntos y sus respectivos razones
     ;; en defecto, si no hay 3 se completa con libros con mayores ventas
     
-
-
-
 ;; recomendacion (LIBROS + PUNTUAJE+MOTIVO)  1 --> *  recomendacion_detallada (libro + razones) l
