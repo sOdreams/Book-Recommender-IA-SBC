@@ -132,19 +132,50 @@
     ?respuesta
 )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;Funcion para ordenar ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(deffunction bubble-sort (?libros ?ordenar-libros)
+  (bind ?n (length$ ?libros))
+  (loop-for-count (?i (- ?n 1))
+    (loop-for-count (?j (- ?n ?i 1))
+      (bind ?libroA (nth$ ?j ?libros))
+      (bind ?libroB (nth$ (+ ?j 1) ?libros))
+      (if (eq ?ordenar-libros TRUE) 
+      then 
+      (if (< (send ?libroA get-ventas) (send ?libroB get-ventas))
+        then
+        (bind ?temp ?libroA)
+        (bind ?libros (replace$ ?libros ?j ?j ?libroB))
+        (bind ?libros (replace$ ?libros (+ ?j 1) (+ ?j 1) ?temp))
+      )
+      else
+        (if (< (send ?libroA get-puntaje) (send ?libroB get-puntaje))
+          then
+          (bind ?temp ?libroA)
+          (bind ?libros (replace$ ?libros ?j ?j ?libroB))
+          (bind ?libros (replace$ ?libros (+ ?j 1) (+ ?j 1) ?temp))
+        )
+      )
+    )
+  )
+  ; (printout t  ?libros)
+  ?libros
+)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;FUNCIONES IMPRRESION ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (deffunction imprimir-recomendaciones ()
   (printout t "Lista de recomendaciones:" crlf)
 
   (bind ?recomendaciones (find-all-instances ((?recomendacion RecomendacionDetalle)) TRUE)) 
-
+  (bind ?recomendaciones (bubble-sort ?recomendaciones FALSE))
   (loop-for-count (?i (min 3 (length$ ?recomendaciones)))
     (bind ?currentRecomendacion (nth$ ?i ?recomendaciones))
     (printout t "ID: " (instance-name ?currentRecomendacion) crlf)
-    (printout t "   Libro: " (send ?currentRecomendacion get-libro) crlf)
-    (printout t "   Puntuacion: " (send ?currentRecomendacion get-puntaje) crlf)
-    (printout t "   Razon: " (send ?currentRecomendacion get-razon) crlf)
+    (printout t "Libro: " (send ?currentRecomendacion get-libro) crlf)
+    (bind ?libro (send ?currentRecomendacion get-libro))
+    (printout t "Titulo: " (send ?libro get-titulo) crlf)
+    (printout t "Puntuacion: " (send ?currentRecomendacion get-puntaje) crlf)
+    (printout t "Razon: " (send ?currentRecomendacion get-razon) crlf)
   )
   (printout t "Fin de la lista de recomendaciones." crlf)
 )
@@ -347,10 +378,6 @@
 )
 
 (deftemplate MAIN::SolucionAbstracta
-  (slot Dificultad
-    (type SYMBOL)
-    (allowed-symbols Facil Moderado Dificil)
-  )
   (multislot Genero
     (type INSTANCE)
   )
@@ -510,7 +537,7 @@
           )
         )
     )
-    (printout t (send ?lector get-autores_preferidos)crlf)
+    ; (printout t (send ?lector get-autores_preferidos)crlf)
 )
 
 
@@ -532,7 +559,7 @@
         (bind ?generos-matching-preferidos (insert$ ?generos-matching-preferidos 1 ?generos_a))
     )
     (send ?lector put-generos_preferidos ?generos-matching-preferidos)
-    (printout t (send ?lector get-generos_preferidos)crlf)
+    ; (printout t (send ?lector get-generos_preferidos)crlf)
 )
 
 (defrule entrada_de_informacion_lector::establecer-epocas-preferidos "Establece temas preferidos que el lector quiere que tengan los libros"
@@ -553,7 +580,7 @@
         (bind ?epocas-matching-preferidos (insert$ ?epocas-matching-preferidos 1 ?epocas))
     )
     (send ?lector put-epocas_preferidos ?epocas-matching-preferidos)
-    (printout t (send ?lector get-epocas_preferidos)crlf)
+    ; (printout t (send ?lector get-epocas_preferidos)crlf)
 )
 
 (defrule entrada_de_informacion_lector::establecer-interes-libros-complejos "Establece si el lector le interesa libros con cierta complejidad."
@@ -567,7 +594,7 @@
         else 
         (send ?lector put-interes_complejo FALSE)
     )
-    (printout t (send ?lector get-interes_complejo) crlf)
+    ; (printout t (send ?lector get-interes_complejo) crlf)
 )
 
 (defrule entrada_de_informacion_lector::establecer-interes-libros-extensos "Establece si el lector le interesa libros extensos."
@@ -596,7 +623,7 @@
         else 
         (send ?lector put-preferencia_papel FALSE)
     )
-    (printout t (send ?lector get-preferencia_papel) crlf)
+    ; (printout t (send ?lector get-preferencia_papel) crlf)
 )
 
 
@@ -618,7 +645,7 @@
         (bind ?idiomas-matching-preferidos (insert$ ?idiomas-matching-preferidos 1 ?idioma))
     )
     (send ?lector put-lee_en_idiomas ?idiomas-matching-preferidos)
-    (printout t (send ?lector get-lee_en_idiomas)crlf)
+    ; (printout t (send ?lector get-lee_en_idiomas)crlf)
 )
 
 (defrule entrada_de_informacion_lector::establecer-preferencia-moda "Establece si el lector prefiere libros de moda"
@@ -632,7 +659,7 @@
         else 
         (send ?lector put-interes_moda FALSE)
     )
-    (printout t (send ?lector get-interes_moda) crlf)
+    ; (printout t (send ?lector get-interes_moda) crlf)
 )
 
 (defrule entrada_de_informacion_lector::establecer-preferencia-popularidad "Establece si el lector prefiere libros popuolares"
@@ -646,7 +673,7 @@
         else 
         (send ?lector put-interes_popularidad FALSE)
     )
-    (printout t (send ?lector get-interes_popularidad) crlf)
+    ; (printout t (send ?lector get-interes_popularidad) crlf)
 )
 
 (defrule entrada_de_informacion_lector::establecer-preferencia-valoracion "Establece si el lector prefiere libros con buena valoracion"
@@ -660,7 +687,7 @@
         else 
         (send ?lector put-interes_valoracion FALSE)
     )
-    (printout t (send ?lector get-interes_valoracion) crlf)
+    ; (printout t (send ?lector get-interes_valoracion) crlf)
 )
 
 (defrule entrada_de_informacion_lector::establecer-tiempo-lector "Establece tiempo que el lector tiene planeado dedicar a la semana a la lectura"
@@ -677,7 +704,7 @@
         (printout t "El número no es un entero o es menor a 0." crlf)
     )
     )
-    (printout t (send ?lector get-tiempo_semanal_lectura)crlf)
+    ; (printout t (send ?lector get-tiempo_semanal_lectura)crlf)
 )
 
 (defrule entrada_de_informacion_lector::establecer-actividad-social "Establece si el lector participa en actividades que tengan relacion con lectura de libros"
@@ -690,7 +717,7 @@
         else 
         (send ?lector put-actividad_de_lectura_social FALSE)
     )
-    (printout t (send ?lector get-actividad_de_lectura_social) crlf)
+    ; (printout t (send ?lector get-actividad_de_lectura_social) crlf)
 )
 
 
@@ -699,7 +726,7 @@
     =>
     (bind ?respuesta (pregunta_opciones_una_respuesta "Escoge en algunas de las siguientes opciones, el lugar donde sueles realizar la lectura. Se espera que escribas el nombre completo del lugar." Casa Cafetería BIblioteca Natura Metro Bus Avión Calle Parque))
     (send ?lector put-lugar_de_lectura ?respuesta)
-    (printout t (send ?lector get-lugar_de_lectura)crlf)
+    ; (printout t (send ?lector get-lugar_de_lectura)crlf)
 )
 
 (defrule entrada_de_informacion_lector::cambiar_a_procesado_datos "Regla para cambiar a procesado de datos"
@@ -736,7 +763,7 @@
       (bind ?nivel Medio)
     )
   )
-  (printout t "El nivel Personal es:"?nivel crlf)
+  ; (printout t "El nivel Personal es:"?nivel crlf)
 
   (assert (ProblemaAbstracto (NivelPersonal ?nivel)))
 )
@@ -768,7 +795,7 @@
       (bind ?nivel Bajo)
     )
   )
-  (printout t "El nivel Literario es:"?nivel crlf)
+  ; (printout t "El nivel Literario es:"?nivel crlf)
   (modify ?problema
     (NivelLiterario ?nivel)
   )
@@ -817,7 +844,7 @@
     (EstatusLibro ?estatus)
     (TratadoEstatus TRUE)
   )
-  (printout t "Los libros tienen la siguiente caracteristcas: " ?estatus crlf)
+  ; (printout t "Los libros tienen la siguiente caracteristcas: " ?estatus crlf)
 
 )
 
@@ -844,23 +871,23 @@
   )
   ; Determinar Dificultad en función de Nivel Personal y Nivel Literario
   (printout t "Calculando la dificultad de análisis y compresión del lector hacía un libro..."crlf)
-  (bind ?dificultad Moderado) ; Valor por defecto
+  (bind ?NivelLector Intermedio) ; Valor por defecto
   (if (or (eq ?nivelPersonal Bajo) (eq ?nivelLiterario Bajo) (eq ?contexto RUIDOSO))
     then
-    (bind ?dificultad Facil)
+    (bind ?NivelLector Principiante)
     else
     (if (or (eq ?nivelPersonal Alto) (eq ?nivelLiterario Alto))
       then
-      (bind ?dificultad Dificil)
+      (bind ?NivelLector Avanzado)
   ))
 
-  ; Crear instancia de SolucionAbstracta con la Dificultad derivada
+  ; Crear instancia de SolucionAbstracta con la NivelLector derivada
   (assert
     (SolucionAbstracta
-      (Dificultad ?dificultad)
+      (NivelLector Intermedio)
     )
   )
-  (printout t "El lector necesita libros con la siguiente dificultad: " ?dificultad crlf) 
+  ; (printout t "El lector necesita libros con la siguiente dificultad: " ?NivelLector crlf) 
 )
 
 (defrule generar-solucion::CopiarGenerosYTemasYAutores
@@ -897,33 +924,6 @@
   )
 )
 
-(defrule generar-solucion::DerivarNivelLector
-  ?problema <- (ProblemaAbstracto
-                 (NivelPersonal ?nivelPersonal))
-  ?solucion <- (SolucionAbstracta (TratadoNivelLector ?tratado))
-  (test (eq ?tratado FALSE))
-  =>
-  (printout t "Calculando nivel de del lector..."crlf)
- 
-  (if (eq ?nivelPersonal Bajo)
-    then
-    (modify ?solucion (NivelLector Principiante)
-      (TratadoNivelLector TRUE))
-  else
-    (if (eq ?nivelPersonal Medio)
-      then
-      (modify ?solucion (NivelLector Intermedio)
-        (TratadoNivelLector TRUE))
-    else
-      (if (eq ?nivelPersonal Alto)
-        then
-        (modify ?solucion (NivelLector Avanzado)
-          (TratadoNivelLector TRUE))
-      )
-    )
-  )
-
-)
 
 (defrule generar-solucion::Cambiar_a_procesar_libros "Regla para cambiar a procesar libros"
     ?lector <- (object (is-a Lector))
@@ -943,25 +943,7 @@
   (bind ?libros (find-all-instances ((?libro Libro)) TRUE))
   (assert (lista-de-libros ?libros))
   (printout t "Gestionando Instancias de libros..."crlf)
-  (printout t ?libros crlf)
-)
-
-(deffunction bubble-sort (?libros)
-  (bind ?n (length$ ?libros))
-  (loop-for-count (?i (- ?n 1))
-    (loop-for-count (?j (- ?n ?i 1))
-      (bind ?libroA (nth$ ?j ?libros))
-      (bind ?libroB (nth$ (+ ?j 1) ?libros))
-      (if (< (send ?libroA get-ventas) (send ?libroB get-ventas))
-        then
-        (bind ?temp ?libroA)
-        (bind ?libros (replace$ ?libros ?j ?j ?libroB))
-        (bind ?libros (replace$ ?libros (+ ?j 1) (+ ?j 1) ?temp))
-      )
-    )
-  )
-  (printout t  ?libros)
-  ?libros
+  ; (printout t ?libros crlf)
 )
 
 (defrule procesar-libros::crear-puntuacion-recomendaciones
@@ -975,6 +957,24 @@
   =>
   (printout t "Refinando solución..." crlf)
   (bind ?numLibrosRecomendados 0)
+
+  (bind ?generosSimilares (create$))
+  (bind ?autoresSimilares (create$))
+  (bind ?temasSimilares (create$))
+  (bind ?idiomasSimilares (create$))
+  (bind ?librosSimilares (send ?lector get-libros_preferidos))
+  (loop-for-count (?i (length$ ?librosSimilares))
+    (bind ?libroActual (nth$ ?i ?librosSimilares))
+    (bind ?generosLibroActual (send ?libroActual get-genero_de_libro))
+    (bind ?autoresLibroActual (send ?libroActual get-escrito_por))
+    (bind ?temasLibroActual (send ?libroActual get-tema_de_libro))
+    (bind ?idiomasLibroActual (send ?libroActual get-idioma_de_libro))
+    (bind ?generosSimilares (insert$ ?generosSimilares 1 ?generosLibroActual))
+    (bind ?autoresSimilares (insert$ ?autoresSimilares 1 ?autoresLibroActual))
+    (bind ?temasSimilares (insert$ ?temasSimilares 1 ?temasLibroActual))
+    (bind ?idiomasSimilares (insert$ ?idiomasSimilares 1 ?idiomasLibroActual))
+  )
+
   (foreach ?libro ?libros
     (if (cumple-con-solucion ?libro ?generos ?temas ?autores ?nivel ?estatus2 ?idiomas)
       then
@@ -1005,7 +1005,8 @@
         (bind ?puntuacion (+ ?puntuacion 10))
         (bind ?razon (str-cat ?razon "Cumple con idioma."))
       )
-
+      ; (printout t "Debug: nivel lector = " ?nivel crlf)
+      ; (printout t "Debug: nivel lector libro = " (send ?libro get-NivelLector) crlf)
       (if (eq (send ?libro get-NivelLector) ?nivel)
         then
         (bind ?puntuacion (+ ?puntuacion 5))
@@ -1028,8 +1029,7 @@
     )
   )
 
-  (bind ?librosOrdenados (bubble-sort ?libros))
-  
+  (bind ?librosOrdenados (bubble-sort ?libros TRUE))
   (loop-for-count (?i (- 3 ?numLibrosRecomendados))
     (bind ?libro (nth$ ?i ?librosOrdenados))
 
