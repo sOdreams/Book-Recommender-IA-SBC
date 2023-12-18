@@ -166,7 +166,7 @@
     (printout t "----------------------------------------------------" crlf)
     (bind ?currentRecomendacion (nth$ ?i ?recomendaciones))
     (bind ?libro (send ?currentRecomendacion get-libro))
-    (printout t "Titulo: " (send ?libro get-titulo) crlf)
+    (printout t "Título: " (send ?libro get-titulo) crlf)
     (bind ?autor (send ?libro get-escrito_por))
     (printout t "Autor: " (send ?autor get-nombre) crlf)
     (bind ?idioma (send ?libro get-idioma_de_libro))
@@ -707,7 +707,7 @@
 (defrule entrada_de_informacion_lector::establecer-lugar-lectura "Establece el lugar donde el lector suele realizar la lectura"
     ?lector <- (object (is-a Lector))
     =>
-    (bind ?respuesta (pregunta_opciones_una_respuesta "Escoge, en algunas de las siguientes opciones, el lugar donde sueles realizar la lectura. Se espera que escribas el nombre completo del lugar:" Casa Cafetería BIblioteca Natura Metro Bus Avión Calle Parque))
+    (bind ?respuesta (pregunta_opciones_una_respuesta "Escoge, en algunas de las siguientes opciones, el lugar donde sueles realizar la lectura. Se espera que escribas el nombre completo del lugar:" Casa Cafetería Biblioteca Natura Metro Bus Avión Calle Parque))
     (send ?lector put-lugar_de_lectura ?respuesta)
 )
 
