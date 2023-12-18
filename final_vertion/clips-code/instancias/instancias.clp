@@ -1193,7 +1193,7 @@
    ([libro-ficcion-6] of Libro
       (epoca_de_libro [epoca-modernismo])
       (escrito_por [autor-ficcion-3])
-      (genero_de_libro [genero-ficcion] [genero-fantasia])
+      (genero_de_libro [genero-ficcion])
       (idioma_de_libro [idioma-ingles])
       (tema_de_libro [tema-aventura])
       (ano_publicacion 1951)
