@@ -158,8 +158,10 @@
 ;;;;;;;;;;;;;;;;;;;Funciones para imprimir instancias;;;;;;;;;;;;;;;;;;;
 
 (deffunction imprimir-recomendaciones ()
+   (printout t crlf)
+   (printout t crlf)
   (printout t "Lista de recomendaciones:" crlf)
-  (printout t "----------------------------------------------------" crlf)
+  (printout t "------------------ ----------------------------------" crlf)
   (bind ?recomendaciones (find-all-instances ((?recomendacion RecomendacionDetalle)) TRUE)) 
   (bind ?recomendaciones (bubble-sort ?recomendaciones FALSE))
   (loop-for-count (?i (min 3 (length$ ?recomendaciones)))
@@ -471,14 +473,14 @@
     (send ?lector put-nombre ?nombre)
 )
 
-(defrule entrada_de_informacion_lector::establecer_edad "Establece edad"
+(defrule entrada_de_informacion_lector::establecer-edad "Establece edad"
     ?lector <- (object (is-a Lector))
     =>
     (bind ?edad (pregunta-numerica "¿Cuántos años tienes" 6 150))
     (send ?lector put-edad ?edad)
 )
 
-(defrule entrada_de_informacion_lector::establecer_de_libros_leidos "Establece numero de libros leidos"
+(defrule entrada_de_informacion_lector::establecer-de-libros-leidos "Establece numero de libros leidos"
     ?lector <- (object (is-a Lector))
     =>
     (bind ?num_libros (pregunta-numerica "¿Cuántos libros has leído hasta ahora?" 0 15000))
