@@ -467,8 +467,15 @@
 (defrule entrada_de_informacion_lector::establecer-nombre "Establece el nombre del lector"
     ?lector <- (object (is-a Lector))
     =>
-    (bind ?nombre (pregunta-general "¿Cóme te llamas?"))
+    (bind ?nombre (pregunta-general "¿Cómo te llamas?"))
     (send ?lector put-nombre ?nombre)
+)
+
+(defrule entrada_de_informacion_lector::establecer_edad "Establece edad"
+    ?lector <- (object (is-a Lector))
+    =>
+    (bind ?edad (pregunta-numerica "¿Cuántos años tienes" 6 150))
+    (send ?lector put-edad ?edad)
 )
 
 (defrule entrada_de_informacion_lector::establecer_de_libros_leidos "Establece numero de libros leidos"
